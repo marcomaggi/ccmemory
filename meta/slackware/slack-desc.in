@@ -1,0 +1,12 @@
+              |-----handy-ruler-----------------------------------------------|
+@PACKAGE_NAME@: @PACKAGE_NAME@ @PACKAGE_VERSION@
+@PACKAGE_NAME@:
+@PACKAGE_NAME@: C language library implementing an interface for custom memory
+@PACKAGE_NAME@: allocators.
+@PACKAGE_NAME@:
+@PACKAGE_NAME@: The home page of the project is at:
+@PACKAGE_NAME@:
+@PACKAGE_NAME@: <http://github.com/marcomaggi/ccmemory/>
+@PACKAGE_NAME@:
+@PACKAGE_NAME@:
+@PACKAGE_NAME@:
