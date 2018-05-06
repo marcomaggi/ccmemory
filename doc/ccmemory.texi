@@ -12,11 +12,11 @@
 @c Values.
 @c ------------------------------------------------------------
 
-@set TITLE                      Ccmemory
+@set TITLE                      CCMemory
 
 @c To be used as @value{PACKAGE} whenever we need to include the full
 @c name of this package.
-@set PACKAGE                    Ccmemory
+@set PACKAGE                    CCMemory
 
 @c To be used as @value{PACKAGE} whenever we need to include the
 @c nickname of the project: the name that is used to compose the
@@ -33,9 +33,12 @@
 
 @c To be used as @value{COPYRIGHT_YEARS} whenever we need to include the
 @c list of copyright years.
-@set COPYRIGHT_YEARS            2016
+@set COPYRIGHT_YEARS            2016, 2018
 
 @c ------------------------------------------------------------
+
+@set CCEXCEPTIONS_VERSION       0.7.2
+@set CCTESTS_VERSION            0.2.0
 
 @set GITHUB_URL                 @url{http://github.com/marcomaggi/@value{PACKAGE_NICKNAME}}
 @set BITBUCKET_URL              @url{https://bitbucket.org/marcomaggi/@value{PACKAGE_NICKNAME}}
@@ -48,8 +51,12 @@
 @c ------------------------------------------------------------
 
 @copying
-This document describes version @value{VERSION} of @value{PACKAGE}, a C language library
+This document describes version @value{VERSION} of @value{PACKAGE}, a C11 language library
 implementing an interface to custom memory allocators.
+
+This package supports @posix{} platforms.  This package depends on the package CCExceptions, at
+least version @value{CCEXCEPTIONS_VERSION}.  To run the test suite: this package depends upon the
+package CCTests, at least version @value{CCTESTS_VERSION}.
 
 The package is distributed under the terms of the @gnu{} Lesser General Public License (@lgpl{}).
 
@@ -121,10 +128,11 @@ included in the section entitled ``@gnu{} Free Documentation License''.
 @menu
 * overview::                    Overview of the package.
 * version::                     Version functions.
+* utils::                       Utility definitions.
 
 Appendices
 
-* Package License::             GNU General Public License.
+* Package License::             GNU Lesser General Public License.
 * Documentation License::       GNU Free Documentation License.
 * references::                  Bibliography and references.
 
@@ -145,9 +153,13 @@ Indexes
 This document describes version @value{VERSION} of @value{PACKAGE}, a C language library
 implementing an interface to custom memory allocators.
 
+This package supports @posix{} platforms.  This package depends on the package CCExceptions, at
+least version @value{CCEXCEPTIONS_VERSION}.  To run the test suite: this package depends upon the
+package CCTests, at least version @value{CCTESTS_VERSION}.
+
 @value{PACKAGE} installs the single header file @file{ccmemory.h}.  All the function names in the
-@api{} are prefixed with @code{ccm_}; all the constant names are prefixed with @code{CCM_}; all the
-type names are prefixed with @code{ccm_} and suffixed with @code{_t}.
+@api{} are prefixed with @code{ccmem_}; all the constant names are prefixed with @code{CCMEM_}; all
+the type names are prefixed with @code{ccmem_} and suffixed with @code{_t}.
 
 @menu
 * overview linking::            Linking code with the library.
@@ -166,15 +178,35 @@ PKG_CHECK_MODULES([CCMEMORY],[ccmemory >= 0.1])
 @end example
 
 @noindent
-which will set the variables @code{CCMEMORY_LIBS} and @code{CCMEMORY_CFLAGS}.
+which will set the variables @code{CCMEMORY_LIBS} and @code{CCMEMORY_CFLAGS}.  To avoid problems
+with @command{pkg-config}, we need to remember that:
+
+@itemize
+@item
+The macro file defining @code{PKG_CHECK_MODULES} is installed by the package @code{pkg-config}; such
+file usually is in one of the locations:
+
+@center @file{/usr/share/aclocal/pkg.m4}
+@center @file{/usr/local/share/aclocal/pkg.m4}
+
+@item
+The macro file is located by @command{aclocal}, which in turn is installed by the package @gnu{}
+Automake; @command{aclocal} is used by @command{autoreconf}.  We must make sure that
+@command{aclocal} finds the installed macro files; for this purpose we can use the environment
+variable @env{ACLOCAL_PATH}; under a Bourne shell we can do this with:
+
+@example
+export ACLOCAL_PATH=/usr/local/share/aclocal:/usr/share/aclocal
+@end example
+@end itemize
 
 Alternatively we can use the raw @gnu{} Autoconf macros:
 
 @example
-AC_CHECK_LIB([ccmemory],[cct_version_string],,
-  [AC_MSG_FAILURE([test for Ccmemory library failed])])
+AC_CHECK_LIB([ccmemory],[ccmem_version_string],,
+  [AC_MSG_FAILURE([test for CCMemory library failed])])
 AC_CHECK_HEADERS([ccmemory.h],,
-  [AC_MSG_FAILURE([test for Ccmemory header failed])])
+  [AC_MSG_FAILURE([test for CCMemory header failed])])
 @end example
 
 @c page
@@ -182,32 +214,71 @@ AC_CHECK_HEADERS([ccmemory.h],,
 @chapter Version functions
 
 
-The installed libraries follow version numbering as established by the
-@gnu{} Autotools.  For an explanation of interface numbers as managed by
-@gnu{} Libtool @xref{Libtool versioning, interface, Libtool's versioning
-system, libtool, Shared library support for @gnu{}}.
+The installed libraries follow version numbering as established by the @gnu{} Autotools.  For an
+explanation of interface numbers as managed by @gnu{} Libtool @xref{Libtool versioning, interface,
+Libtool's versioning system, libtool, Shared library support for @gnu{}}.
 
 
-@deftypefun {const char *} ccm_version_string (void)
-Return a pointer to a statically allocated @asciiz{} string representing
-the interface version number.
-@end deftypefun
-
-
-@deftypefun int ccm_version_interface_current (void)
-Return an integer representing the library interface current number.
-@end deftypefun
-
-
-@deftypefun int ccm_version_interface_revision (void)
-Return an integer representing the library interface current revision
+@deftypefun {char const *} ccmem_version_string (void)
+Return a pointer to a statically allocated @asciiz{} string representing the interface version
 number.
 @end deftypefun
 
 
-@deftypefun int ccm_version_interface_age (void)
+@deftypefun int ccmem_version_interface_current (void)
+Return an integer representing the library interface current number.
+@end deftypefun
+
+
+@deftypefun int ccmem_version_interface_revision (void)
+Return an integer representing the library interface current revision number.
+@end deftypefun
+
+
+@deftypefun int ccmem_version_interface_age (void)
 Return an integer representing the library interface current age.
 @end deftypefun
+
+@c page
+@node utils
+@chapter Utility definitions
+
+
+@defmac CCMEM_PC (@var{POINTER_TYPE}, @var{POINTER_NAME}, @var{EXPRESSION})
+Preprocessor macro used to define pointer variables initialised with a cast expression.  It expands
+to:
+
+@example
+POINTER_TYPE * POINTER_NAME = (POINTER_TYPE *) (EXPRESSION)
+@end example
+
+For example, the macro use:
+
+@example
+CCMEM_PC(ccmem_descriptor_test_failure_t, C, _C);
+@end example
+
+@noindent
+expands into:
+
+@example
+ccmem_descriptor_test_failure_t * C = \
+   (ccmem_descriptor_test_failure_t *) (_C);
+@end example
+@end defmac
+
+
+@defmac CCMEM_UNUSED
+Preprocessor macro that is meant to expand into an attribute declaration.  If the symbol
+@code{__GNUC__} is defined, the expansion is:
+
+@example
+__attribute__((__unused__))
+@end example
+
+@noindent
+otherwise the expansion is the empty string.
+@end defmac
 
 @c page
 @c ------------------------------------------------------------

@@ -1,13 +1,13 @@
 /*
   Part of: CCMemory
   Contents: version functions
-  Date: Sat Dec 17, 2016
+  Date: Dec 17, 2016
 
   Abstract
 
 
 
-  Copyright (C) 2016 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
   This program is  free software: you can redistribute  it and/or modify
   it  under the  terms  of  the GNU  Lesser  General  Public License  as
@@ -33,22 +33,22 @@
 
 
 const char *
-ccm_version_string (void)
+ccmem_version_string (void)
 {
   return ccmemory_VERSION_INTERFACE_STRING;
 }
 int
-ccm_version_interface_current (void)
+ccmem_version_interface_current (void)
 {
   return ccmemory_VERSION_INTERFACE_CURRENT;
 }
 int
-ccm_version_interface_revision (void)
+ccmem_version_interface_revision (void)
 {
   return ccmemory_VERSION_INTERFACE_REVISION;
 }
 int
-ccm_version_interface_age (void)
+ccmem_version_interface_age (void)
 {
   return ccmemory_VERSION_INTERFACE_AGE;
 }

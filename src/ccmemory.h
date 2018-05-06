@@ -1,13 +1,14 @@
 /*
   Part of: CCMemory
   Contents: public header file
-  Date: Sat Dec 17, 2016
+  Date: Dec 17, 2016
 
   Abstract
 
+	This  public header  must be  included in  all the  source files
+	using the features of the library CCMemory.
 
-
-  Copyright (C) 2016 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
   This program is  free software: you can redistribute  it and/or modify
   it  under the  terms  of  the GNU  Lesser  General  Public License  as
@@ -29,24 +30,24 @@
 
 
 /** --------------------------------------------------------------------
- ** Headers.
+ ** Preliminary definitions.
  ** ----------------------------------------------------------------- */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* The  macro  CCMEMORY_UNUSED  indicates  that a  function,  function
-   argument or variable may potentially be unused. Usage examples:
+/* The macro  CCMEM_UNUSED indicates that a  function, function argument
+   or variable may potentially be unused. Usage examples:
 
-   static int unused_function (char arg) CCMEMORY_UNUSED;
-   int foo (char unused_argument CCMEMORY_UNUSED);
-   int unused_variable CCMEMORY_UNUSED;
+   static int unused_function (char arg) CCMEM_UNUSED;
+   int foo (char unused_argument CCMEM_UNUSED);
+   int unused_variable CCMEM_UNUSED;
 */
 #ifdef __GNUC__
-#  define CCMEMORY_UNUSED		__attribute__((unused))
+#  define CCMEM_UNUSED		__attribute__((__unused__))
 #else
-#  define CCMEMORY_UNUSED		/* empty */
+#  define CCMEM_UNUSED		/* empty */
 #endif
 
 #ifndef __GNUC__
@@ -58,44 +59,218 @@ extern "C" {
 #if defined _WIN32 || defined __CYGWIN__
 #  ifdef BUILDING_DLL
 #    ifdef __GNUC__
-#      define ccmemory_decl		__attribute__((dllexport))
+#      define ccmem_decl		__attribute__((__dllexport__)) extern
 #    else
-#      define ccmemory_decl		__declspec(dllexport)
+#      define ccmem_decl		__declspec(dllexport) extern
 #    endif
 #  else
 #    ifdef __GNUC__
-#      define ccmemory_decl		__attribute__((dllimport))
+#      define ccmem_decl		__attribute__((__dllimport__)) extern
 #    else
-#      define ccmemory_decl		__declspec(dllimport)
+#      define ccmem_decl		__declspec(dllimport) extern
 #    endif
 #  endif
-#  define ccmemory_private_decl	extern
+#  define ccmem_private_decl	extern
 #else
 #  if __GNUC__ >= 4
-#    define ccmemory_decl		__attribute__((visibility ("default")))
-#    define ccmemory_private_decl	__attribute__((visibility ("hidden")))
+#    define ccmem_decl		__attribute__((__visibility__("default"))) extern
+#    define ccmem_private_decl	__attribute__((__visibility__("hidden")))  extern
 #  else
-#    define ccmemory_decl		extern
-#    define ccmemory_private_decl	extern
+#    define ccmem_decl		extern
+#    define ccmem_private_decl	extern
 #  endif
 #endif
 
 
 /** --------------------------------------------------------------------
- ** Constants.
+ ** Headers.
  ** ----------------------------------------------------------------- */
 
-
+#include <ccexceptions.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
 
 
 /** --------------------------------------------------------------------
  ** Version functions.
  ** ----------------------------------------------------------------- */
 
-ccmemory_decl const char *	ccm_version_string		(void);
-ccmemory_decl int		ccm_version_interface_current	(void);
-ccmemory_decl int		ccm_version_interface_revision	(void);
-ccmemory_decl int		ccm_version_interface_age	(void);
+ccmem_decl char const *	ccmem_version_string		(void);
+ccmem_decl int		ccmem_version_interface_current	(void);
+ccmem_decl int		ccmem_version_interface_revision(void);
+ccmem_decl int		ccmem_version_interface_age	(void);
+
+
+/** --------------------------------------------------------------------
+ ** Initialisation.
+ ** ----------------------------------------------------------------- */
+
+/*
+ccmem_decl void ccmem_library_init (void)
+  __attribute__((__constructor__));
+*/
+
+
+/** --------------------------------------------------------------------
+ ** Constants and preprocessor macros.
+ ** ----------------------------------------------------------------- */
+
+#define CCMEM_PC(POINTER_TYPE, POINTER_NAME, EXPRESSION)	\
+  POINTER_TYPE * POINTER_NAME = (POINTER_TYPE *) (EXPRESSION)
+
+
+/** --------------------------------------------------------------------
+ ** Memory handling: allocator.
+ ** ----------------------------------------------------------------- */
+
+typedef struct ccmem_memory_allocator_t		ccmem_memory_allocator_t;
+typedef struct ccmem_memory_allocator_methods_t	ccmem_memory_allocator_methods_t;
+
+typedef void * ccmem_malloc_fun_t  (ccmem_memory_allocator_t A, cce_destination_t L, size_t size);
+typedef void * ccmem_realloc_fun_t (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr, size_t newsize);
+typedef void * ccmem_calloc_fun_t  (ccmem_memory_allocator_t A, cce_destination_t L, size_t count, size_t eltsize);
+typedef void   ccmem_free_fun_t    (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr);
+
+struct ccmem_memory_allocator_methods_t {
+  ccmem_malloc_fun_t  * const	malloc;
+  ccmem_realloc_fun_t * const	realloc;
+  ccmem_calloc_fun_t  * const	calloc;
+  ccmem_free_fun_t    * const	free;
+};
+
+struct ccmem_memory_allocator_t {
+  ccmem_memory_allocator_methods_t const * const	methods;
+};
+
+/* ------------------------------------------------------------------ */
+
+static inline void *
+ccmem_malloc (ccmem_memory_allocator_t A, cce_destination_t L, size_t size)
+{
+  return A.methods->malloc(A, L, size);
+}
+
+static inline void *
+ccmem_realloc (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr, size_t newsize)
+{
+  return A.methods->realloc(A, L, ptr, newsize);
+}
+
+static inline void *
+ccmem_calloc (ccmem_memory_allocator_t A, cce_destination_t L, size_t count, size_t eltsize)
+{
+  return A.methods->calloc(A, L, count, eltsize);
+}
+
+static inline void
+ccmem_free (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr)
+{
+  A.methods->free(A, L, ptr);
+}
+
+
+/** --------------------------------------------------------------------
+ ** Memory handling: blocks.
+ ** ----------------------------------------------------------------- */
+
+typedef struct ccmem_block_t {
+  size_t	len;
+  uint8_t *	ptr;
+} ccmem_block_t;
+
+#if 0
+
+static inline __attribute__((__always_inline__,__nonnull__))
+void
+ccmem_block_set (ccmem_block_t * block, void * p, size_t len)
+{
+  block->ptr = p;
+  block->len = len;
+}
+static inline __attribute__((__always_inline__,__nonnull__))
+void
+ccmem_block_reset (ccmem_block_t * block)
+{
+  block->ptr = NULL;
+  block->len = 0;
+}
+static inline __attribute__((__always_inline__))
+ccmem_bool_t
+ccmem_block_is_null (ccmem_block_t block)
+{
+  return (NULL == block.ptr);
+}
+static inline __attribute__((__always_inline__))
+void
+ccmem_block_clean_memory (ccmem_block_t block)
+{
+  memset(block.ptr, '\0', block.len);
+}
+static inline __attribute__((__always_inline__))
+ccmem_block_t
+ccmem_block_alloc (ccmem_memory_allocator_t allocator, size_t dim)
+{
+  ccmem_block_t	block = { .ptr = NULL, .len = dim };
+  allocator.alloc(allocator.data, &(block.ptr), dim);
+  return block;
+}
+static inline __attribute__((__always_inline__))
+ccmem_block_t
+ccmem_block_realloc (ccmem_memory_allocator_t allocator, ccmem_block_t block, size_t new_dim)
+{
+  allocator.alloc(allocator.data, &(block.ptr), new_dim);
+  block.len = new_dim;
+  return block;
+}
+static inline __attribute__((__always_inline__))
+void
+ccmem_block_free (ccmem_memory_allocator_t allocator, ccmem_block_t block)
+{
+  if (block.ptr)
+    allocator.alloc(allocator.data, &(block.ptr), 0);
+}
+static inline void
+ccmem_block_shift_x (ccmem_block_t * block, ssize_t offset, size_t dim)
+{
+  if (dim) {
+    if (1 != dim) {
+      block->ptr += offset;
+      block->len -= offset;
+    } else {
+      block->ptr += offset * dim;
+      block->len -= offset * dim;
+    }
+  }
+}
+static inline ccmem_block_t
+ccmem_block_shift (ccmem_block_t A, ssize_t offset, size_t dim)
+{
+  ccmem_block_t	B;
+  if (dim) {
+    if (1 != dim) {
+      B.ptr = A.ptr + offset;
+      B.len = A.len + offset;
+    } else {
+      B.ptr = A.ptr + offset * dim;
+      B.len = A.len + offset * dim;
+    }
+  } else {
+    B = A;
+  }
+  return B;
+}
+static inline __attribute__((__always_inline__))
+ccmem_block_t
+ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
+{
+  ccmem_block_t	C = { .ptr = A.ptr, .len = B.ptr - A.ptr };
+  return C;
+}
+
+#endif
 
 
 /** --------------------------------------------------------------------

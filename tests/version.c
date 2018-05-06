@@ -7,23 +7,23 @@
 
 	Test file for version functions.
 
-  Copyright (C) 2016 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
   See the COPYING file.
 */
 
+#include <ccmemory.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ccmemory.h>
 
 int
-main (int argc, const char *const argv[])
+main (void)
 {
-  printf("version number string: %s\n", ccm_version_string());
+  printf("version number string: %s\n", ccmem_version_string());
   printf("libtool version number: %d:%d:%d\n",
-	 ccm_version_interface_current(),
-	 ccm_version_interface_revision(),
-	 ccm_version_interface_age());
+	 ccmem_version_interface_current(),
+	 ccmem_version_interface_revision(),
+	 ccmem_version_interface_age());
   exit(EXIT_SUCCESS);
 }
 

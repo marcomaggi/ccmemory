@@ -1,14 +1,14 @@
 /*
   Part of: CCMemory
   Contents: private header file
-  Date: Sat Dec 17, 2016
+  Date: Dec 17, 2016
 
   Abstract
 
 	This  header  file is  for  internal  definitions.  It  must  be
 	included by all the source files in this package.
 
-  Copyright (C) 2016 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
   This program is  free software: you can redistribute  it and/or modify
   it  under the  terms  of  the GNU  Lesser  General  Public License  as

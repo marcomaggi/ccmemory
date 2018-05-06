@@ -19,9 +19,9 @@ sysconfdir=@sysconfdir@
 ## ------------------------------------------------------------
 
 Name: @PACKAGE_NAME@
-Description: C library for custom memory allocators
+Description: C11 library for custom memory allocators
 Version: @CCMEMORY_PKG_CONFIG_VERSION@
-Libs: -L${libdir} -lccmemory
+Libs: -L${libdir} -lccmemory -lccexceptions
 Cflags: -I${includedir}
 
 ### end of file

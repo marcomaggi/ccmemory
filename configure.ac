@@ -2,12 +2,12 @@ dnl @configure_input@
 dnl
 
 AC_PREREQ([2.69])
-AC_INIT([CCMemory],[0.1d0],
+AC_INIT([CCMemory],[0.1.0-devel.0],
   [marco.maggi-ipsu@poste.it],
   [ccmemory],[http://marcomaggi.github.com/ccmemory])
 dnl This is the revision number of this configure.ac
 AC_REVISION([0.1])
-AC_COPYRIGHT([Copyright (c) 2016 Marco Maggi <marco.maggi-ipsu@poste.it>
+AC_COPYRIGHT([Copyright (c) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
 This program is free software: you  can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -19,8 +19,8 @@ WITHOUT   ANY   WARRANTY;  without   even   the   implied  warranty   of
 MERCHANTABILITY  or  FITNESS FOR  A  PARTICULAR  PURPOSE.  See  the  GNU
 General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy  of the GNU General Public License along
+with this program.  If not, see <http://www.gnu.org/licenses/>.
 ])
 AC_CONFIG_SRCDIR([src/])
 AC_CONFIG_MACRO_DIR([meta/autotools])
@@ -43,35 +43,48 @@ LT_INIT
 dnl page
 #### libraries interface version
 
+MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],1,0,0)
+
 dnl This is the version stored in the pkg-config data file.
 AC_SUBST([CCMEMORY_PKG_CONFIG_VERSION],[0.1])
 
-MM_LIBTOOL_LIBRARY_VERSIONS([ccmemory],1,0,0)
+AS_VAR_SET([SLACKSTUFF_PACKAGE_VERSION],[0.1d0.0])
+AC_SUBST([SLACKSTUFF_PACKAGE_VERSION])
 
 dnl page
 #### basic system inspection
 
+MMUX_CHECK_TARGET_OS
+
 AC_LANG([C])
-dnl AC_DEFINE([_GNU_SOURCE],[1],[enable everything GNU])
-AC_PROG_CC_C99
+MMUX_LANG_C11
+AC_SUBST(AX_CFLAGS)
+
 AM_PROG_AS
-AC_PROG_CC
 AM_PROG_CC_C_O
 AC_HEADER_STDC
-dnl AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([assert.h errno.h stddef.h])
-dnl AC_CHECK_SIZEOF(void *)
-AC_C_CONST
-AC_C_INLINE
-AC_C_RESTRICT
 
 AC_CACHE_SAVE
 
 dnl page
 #### checks for library functions
 
-AC_FUNC_MALLOC
+dnl AC_FUNC_MALLOC
 dnl AC_FUNC_MEMCMP
+dnl AC_CHECK_FUNCS([memmove memset strerror])
+dnl AC_CHECK_FUNCS([mmap munmap msync mremap madvise mlock munlock mlockall munlockall mprotect])
+dnl AC_CHECK_FUNCS([getenv])
+
+dnl AC_CACHE_SAVE
+
+dnl page
+#### external libraries
+
+MMUX_CHECK_PKG_CONFIG_MACROS
+PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.7.2])
+PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.2.0])
+
+AM_CONDITIONAL([CCSEMVER_TESTING_ENABLED],[test -n "$CCTESTS_LIBS"])
 
 AC_CACHE_SAVE
 
@@ -81,6 +94,7 @@ dnl page
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile]
    [meta/scripts/ccmemory.pc]
+   [meta/slackstuff/config]
    [meta/slackware/slack-desc])
 AC_OUTPUT
 
