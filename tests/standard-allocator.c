@@ -35,11 +35,55 @@
 #include "cctests.h"
 
 
+/** --------------------------------------------------------------------
+ ** Memory allocation and release.
+ ** ----------------------------------------------------------------- */
+
+void
+test_1_1 (cce_destination_t L)
+{
+  void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
+
+  memset(P, 0, 4096);
+  ccmem_free(L, ccmem_standard_allocator, P);
+}
+
+void
+test_1_2 (cce_destination_t L)
+{
+  void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
+
+  memset(P, 0, 4096);
+  {
+    void *	Q = ccmem_realloc(L, ccmem_standard_allocator, P, 2 * 4096);
+
+    memset(P, 0, 2 * 4096);
+    ccmem_free(L, ccmem_standard_allocator, Q);
+  }
+}
+
+void
+test_1_3 (cce_destination_t L)
+{
+  void *	P = ccmem_calloc(L, ccmem_standard_allocator, 16, 4096);
+
+  memset(P, 0, 16 * 4096);
+  ccmem_free(L, ccmem_standard_allocator, P);
+}
+
+
 int
 main (void)
 {
   cctests_init("tests for the standard memory allocator");
   {
+    cctests_begin_group("memory allocation and release");
+    {
+      cctests_run(test_1_1);
+      cctests_run(test_1_2);
+      cctests_run(test_1_3);
+    }
+    cctests_end_group();
   }
   cctests_final();
 }

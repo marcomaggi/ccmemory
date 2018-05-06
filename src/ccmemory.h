@@ -98,10 +98,10 @@ extern "C" {
  ** Version functions.
  ** ----------------------------------------------------------------- */
 
-ccmem_decl char const *	ccmem_version_string		(void);
-ccmem_decl int		ccmem_version_interface_current	(void);
-ccmem_decl int		ccmem_version_interface_revision(void);
-ccmem_decl int		ccmem_version_interface_age	(void);
+ccmem_decl char const *	ccmem_version_string			(void);
+ccmem_decl int		ccmem_version_interface_current		(void);
+ccmem_decl int		ccmem_version_interface_revision	(void);
+ccmem_decl int		ccmem_version_interface_age		(void);
 
 
 /** --------------------------------------------------------------------
@@ -123,57 +123,64 @@ ccmem_decl void ccmem_library_init (void)
 
 
 /** --------------------------------------------------------------------
- ** Memory handling: allocator.
+ ** Memory allocator interface definition.
  ** ----------------------------------------------------------------- */
 
-typedef struct ccmem_memory_allocator_t		ccmem_memory_allocator_t;
-typedef struct ccmem_memory_allocator_methods_t	ccmem_memory_allocator_methods_t;
+typedef struct ccmem_allocator_t		ccmem_allocator_t;
+typedef struct ccmem_allocator_methods_t	ccmem_allocator_methods_t;
 
-typedef void * ccmem_malloc_fun_t  (ccmem_memory_allocator_t A, cce_destination_t L, size_t size);
-typedef void * ccmem_realloc_fun_t (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr, size_t newsize);
-typedef void * ccmem_calloc_fun_t  (ccmem_memory_allocator_t A, cce_destination_t L, size_t count, size_t eltsize);
-typedef void   ccmem_free_fun_t    (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr);
+typedef void * ccmem_malloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t size);
+typedef void * ccmem_realloc_fun_t (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize);
+typedef void * ccmem_calloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize);
+typedef void   ccmem_free_fun_t    (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr);
 
-struct ccmem_memory_allocator_methods_t {
+struct ccmem_allocator_methods_t {
   ccmem_malloc_fun_t  * const	malloc;
   ccmem_realloc_fun_t * const	realloc;
   ccmem_calloc_fun_t  * const	calloc;
   ccmem_free_fun_t    * const	free;
 };
 
-struct ccmem_memory_allocator_t {
-  ccmem_memory_allocator_methods_t const * const	methods;
+struct ccmem_allocator_t {
+  ccmem_allocator_methods_t const * const	methods;
 };
 
 /* ------------------------------------------------------------------ */
 
 static inline void *
-ccmem_malloc (ccmem_memory_allocator_t A, cce_destination_t L, size_t size)
+ccmem_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t size)
 {
-  return A.methods->malloc(A, L, size);
+  return A->methods->malloc(L, A, size);
 }
 
 static inline void *
-ccmem_realloc (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr, size_t newsize)
+ccmem_realloc (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize)
 {
-  return A.methods->realloc(A, L, ptr, newsize);
+  return A->methods->realloc(L, A, ptr, newsize);
 }
 
 static inline void *
-ccmem_calloc (ccmem_memory_allocator_t A, cce_destination_t L, size_t count, size_t eltsize)
+ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize)
 {
-  return A.methods->calloc(A, L, count, eltsize);
+  return A->methods->calloc(L, A, count, eltsize);
 }
 
 static inline void
-ccmem_free (ccmem_memory_allocator_t A, cce_destination_t L, void * ptr)
+ccmem_free (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr)
 {
-  A.methods->free(A, L, ptr);
+  A->methods->free(L, A, ptr);
 }
 
 
 /** --------------------------------------------------------------------
- ** Memory handling: blocks.
+ ** Standard memory allocator definition.
+ ** ----------------------------------------------------------------- */
+
+ccmem_decl ccmem_allocator_t const * const ccmem_standard_allocator;
+
+
+/** --------------------------------------------------------------------
+ ** Memory blocks.
  ** ----------------------------------------------------------------- */
 
 typedef struct ccmem_block_t {
@@ -211,7 +218,7 @@ ccmem_block_clean_memory (ccmem_block_t block)
 }
 static inline __attribute__((__always_inline__))
 ccmem_block_t
-ccmem_block_alloc (ccmem_memory_allocator_t allocator, size_t dim)
+ccmem_block_alloc (ccmem_allocator_t allocator, size_t dim)
 {
   ccmem_block_t	block = { .ptr = NULL, .len = dim };
   allocator.alloc(allocator.data, &(block.ptr), dim);
@@ -219,7 +226,7 @@ ccmem_block_alloc (ccmem_memory_allocator_t allocator, size_t dim)
 }
 static inline __attribute__((__always_inline__))
 ccmem_block_t
-ccmem_block_realloc (ccmem_memory_allocator_t allocator, ccmem_block_t block, size_t new_dim)
+ccmem_block_realloc (ccmem_allocator_t allocator, ccmem_block_t block, size_t new_dim)
 {
   allocator.alloc(allocator.data, &(block.ptr), new_dim);
   block.len = new_dim;
@@ -227,7 +234,7 @@ ccmem_block_realloc (ccmem_memory_allocator_t allocator, ccmem_block_t block, si
 }
 static inline __attribute__((__always_inline__))
 void
-ccmem_block_free (ccmem_memory_allocator_t allocator, ccmem_block_t block)
+ccmem_block_free (ccmem_allocator_t allocator, ccmem_block_t block)
 {
   if (block.ptr)
     allocator.alloc(allocator.data, &(block.ptr), 0);

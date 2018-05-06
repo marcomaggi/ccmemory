@@ -1,11 +1,13 @@
 /*
   Part of: CCMemory
-  Contents: memory allocators
+  Contents: implementation of standard memory allocator
   Date: May  5, 2018
 
   Abstract
 
-
+	This module implements the standard memory allocator, relying on
+	the standard  functions "malloc()", "realloc()",  "calloc()" and
+	"free()".
 
   Copyright (C) 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
 
@@ -38,40 +40,40 @@
  ** ----------------------------------------------------------------- */
 
 static void *
-ccmem_standard_allocator_malloc (ccmem_memory_allocator_t A CCMEM_UNUSED, cce_destination_t L, size_t size)
+ccmem_standard_allocator_malloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, size_t size)
 {
   return cce_sys_malloc(L, size);
 }
 
 void *
-ccmem_standard_allocator_realloc (ccmem_memory_allocator_t A CCMEM_UNUSED, cce_destination_t L, void * ptr, size_t newsize)
+ccmem_standard_allocator_realloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr, size_t newsize)
 {
   return cce_sys_realloc(L, ptr, newsize);
 }
 
 void *
-ccmem_standard_allocator_calloc (ccmem_memory_allocator_t A CCMEM_UNUSED, cce_destination_t L, size_t count, size_t eltsize)
+ccmem_standard_allocator_calloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, size_t count, size_t eltsize)
 {
   return cce_sys_calloc(L, count, eltsize);
 }
 
 void
-ccmem_standard_allocator_free (ccmem_memory_allocator_t A CCMEM_UNUSED, cce_destination_t L CCMEM_UNUSED, void * ptr)
+ccmem_standard_allocator_free (cce_destination_t L CCMEM_UNUSED, ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr)
 {
   free(ptr);
 }
 
-static ccmem_memory_allocator_methods_t const ccmem_standard_allocator_methods_stru = {
+static ccmem_allocator_methods_t const ccmem_standard_allocator_methods_stru = {
   .malloc	= ccmem_standard_allocator_malloc,
   .realloc	= ccmem_standard_allocator_realloc,
   .calloc	= ccmem_standard_allocator_calloc,
   .free		= ccmem_standard_allocator_free
 };
 
-static ccmem_memory_allocator_t const ccmem_standard_allocator_stru = {
+static ccmem_allocator_t const ccmem_standard_allocator_stru = {
   .methods	= &ccmem_standard_allocator_methods_stru
 };
 
-ccmem_memory_allocator_t const * const ccmem_standard_allocator = &ccmem_standard_allocator_stru;
+ccmem_allocator_t const * const ccmem_standard_allocator = &ccmem_standard_allocator_stru;
 
 /* end of file */
