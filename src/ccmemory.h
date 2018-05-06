@@ -178,6 +178,32 @@ ccmem_free (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr)
 
 ccmem_decl ccmem_allocator_t const * const ccmem_standard_allocator;
 
+/* ------------------------------------------------------------------ */
+
+static inline void *
+ccmem_std_malloc (cce_destination_t L, size_t size)
+{
+  return ccmem_standard_allocator->methods->malloc(L, ccmem_standard_allocator, size);
+}
+
+static inline void *
+ccmem_std_realloc (cce_destination_t L, void * ptr, size_t newsize)
+{
+  return ccmem_standard_allocator->methods->realloc(L, ccmem_standard_allocator, ptr, newsize);
+}
+
+static inline void *
+ccmem_std_calloc (cce_destination_t L, size_t count, size_t eltsize)
+{
+  return ccmem_standard_allocator->methods->calloc(L, ccmem_standard_allocator, count, eltsize);
+}
+
+static inline void
+ccmem_std_free (cce_destination_t L, void * ptr)
+{
+  ccmem_standard_allocator->methods->free(L, ccmem_standard_allocator, ptr);
+}
+
 
 /** --------------------------------------------------------------------
  ** Memory blocks.
