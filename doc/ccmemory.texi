@@ -150,7 +150,7 @@ Indexes
 @chapter Overview of the package
 
 
-This document describes version @value{VERSION} of @value{PACKAGE}, a C language library
+This document describes version @value{VERSION} of @value{PACKAGE}, a C11 language library
 implementing an interface to custom memory allocators.
 
 This package supports @posix{} platforms.  This package depends on the package CCExceptions, at
