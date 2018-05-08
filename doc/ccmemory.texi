@@ -128,6 +128,8 @@ included in the section entitled ``@gnu{} Free Documentation License''.
 @menu
 * overview::                    Overview of the package.
 * version::                     Version functions.
+* allocators::                  The generic allocators @api{}.
+* std::                         The standard allocator.
 * utils::                       Utility definitions.
 
 Appendices
@@ -237,6 +239,160 @@ Return an integer representing the library interface current revision number.
 
 @deftypefun int ccmem_version_interface_age (void)
 Return an integer representing the library interface current age.
+@end deftypefun
+
+@c page
+@node allocators
+@chapter The generic allocators @api{}
+
+
+@menu
+* allocators typedefs::         Type definitions.
+* allocators api::              Programming interface.
+@end menu
+
+@c page
+@node allocators typedefs
+@section Type definitions
+
+
+@deftp {Struct Typedef} ccmem_allocator_t
+Type of @code{struct} representing a memory allocator.  It has the following fields:
+
+@table @code
+@item ccmem_allocator_methods_t const * const methods
+Pointer to a table of methods representing the behaviour of this allocator.
+@end table
+
+Instances of this type are meant to be wrapped in other @code{struct} to add state to the
+allocator.  For example:
+
+@example
+typedef struct my_allocator_t   my_allocator_t;
+
+struct my_allocator_t @{
+  ccmem_allocator_t     base;
+  void *                state;
+@}
+@end example
+@end deftp
+
+
+@deftp {Struct Typedef} ccmem_allocator_methods_t
+Type of @code{struct} representing the methods of a memory allocator.  It has the following fields:
+
+@table @code
+@item ccmem_malloc_fun_t * const malloc
+Pointer to function that allocates memory in a way similar to the standard @cfunc{malloc}.
+
+@item ccmem_realloc_fun_t * const realloc
+Pointer to function that reallocates memory in a way similar to the standard @cfunc{realloc}.
+
+@item ccmem_calloc_fun_t * const calloc
+Pointer to function that allocates memory in a way similar to the standard @cfunc{calloc}.
+
+@item ccmem_free_fun_t * const free
+Pointer to function that releases memory in a way similar to the standard @cfunc{free}.
+@end table
+@end deftp
+
+@c ------------------------------------------------------------------------
+
+@deftypefun {void *} ccmem_malloc_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{size})
+Type of function that allocates memory in a way similar to the standard @cfunc{malloc}.  The
+function uses the allocator @var{A}.  If an error occurs: an exception is raised by jumping to the
+location @var{L}.  Functions of this type never return @cnull{}.
+@end deftypefun
+
+
+@deftypefun void * ccmem_realloc_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr}, size_t @var{newsize})
+Type of function that reallocates memory in a way similar to the standard @cfunc{realloc}.  The
+function uses the allocator @var{A}.  Only memory blocks allocated by @var{A} can be reallocated by
+this function.  If an error occurs: an exception is raised by jumping to the location @var{L}.
+Functions of this type never return @cnull{}.
+@end deftypefun
+
+
+@deftypefun void * ccmem_calloc_fun_t  (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{count}, size_t @var{eltsize})
+Type of function that allocates memory in a way similar to the standard @cfunc{calloc}.  The
+function uses the allocator @var{A}.  If an error occurs: an exception is raised by jumping to the
+location @var{L}.  Functions of this type never return @cnull{}.
+@end deftypefun
+
+
+@deftypefun void ccmem_free_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr})
+Type of function that releases memory in a way similar to the standard @cfunc{free}.  The function
+uses the allocator @var{A}.  Only memory allocated using the allocator @var{A} can be released with
+this function.  If an error occurs: an exception is raised by jumping to the location @var{L}.
+@end deftypefun
+
+@c page
+@node allocators api
+@section Programming interface
+
+
+@deftypefun {void *} ccmem_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{size})
+Allocate memory in a way similar to the standard @cfunc{malloc}, using the allocator @var{A}.  If an
+error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_realloc (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr}, size_t @var{newsize})
+Reallocate memory in a way similar to the standard @cfunc{realloc}, using the allocator @var{A}.  If
+an error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.  Only blocks of memory allocated using @var{A} can be reallocated using @var{A}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_calloc (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{count}, size_t @var{eltsize})
+Allocate memory in a way similar to the standard @cfunc{calloc}, using the allocator @var{A}.  If an
+error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.
+@end deftypefun
+
+
+@deftypefun void ccmem_free (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr})
+Release memory in a way similar to the standard @cfunc{free}, using the allocator @var{A}.  If an
+error occurs: an exception is raised by jumping to the location @var{L}.
+@end deftypefun
+
+@c page
+@node std
+@chapter The standard allocator
+
+
+@deftypevr {Dynamic Constant} {ccmem_allocator_t const * const} ccmem_standard_allocator
+Pointer to the standard memory allocator instance.  This allocator uses the standard functions
+@cfunc{malloc}, @cfunc{realloc}, @cfunc{calloc} and @cfunc{free}.
+@end deftypevr
+
+
+@deftypefun {void *} ccmem_std_malloc (cce_destination_t @var{L}, size_t @var{size})
+Allocate memory in a way similar to the standard @cfunc{malloc}, using the standard allocator
+@var{A}.  If an error occurs: an exception is raised by jumping to the location @var{L}.  This
+function never returns @cnull{}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_std_realloc (cce_destination_t @var{L}, void * @var{ptr}, size_t @var{newsize})
+Reallocate memory in a way similar to the standard @cfunc{realloc}, using the allocator the standard
+allocator.  If an error occurs: an exception is raised by jumping to the location @var{L}.  This
+function never returns @cnull{}.  Only blocks of memory allocated using the standard allocator can
+be reallocated using this function.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_std_calloc (cce_destination_t @var{L}, size_t @var{count}, size_t @var{eltsize})
+Allocate memory in a way similar to the standard @cfunc{calloc}, using the standard allocator.  If
+an error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.
+@end deftypefun
+
+
+@deftypefun void ccmem_std_free (cce_destination_t @var{L}, void * @var{ptr})
+Release memory in a way similar to the standard @cfunc{free}, using the standard allocator.  If an
+error occurs: an exception is raised by jumping to the location @var{L}.
 @end deftypefun
 
 @c page
