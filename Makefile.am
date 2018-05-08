@@ -41,14 +41,16 @@ libccmemory_la_SOURCES	= \
 	src/ccmemory.h				\
 	src/ccmemory-internals.h		\
 	src/ccmemory-version.c			\
-	src/ccmemory-standard-allocator.c
+	src/ccmemory-standard-allocator.c	\
+	src/ccmemory-blocks.c
 
 #page
 #### tests
 
 check_PROGRAMS	= \
 	tests/version			\
-	tests/standard-allocator
+	tests/standard-allocator	\
+	tests/memory-blocks
 
 if CCSEMVER_TESTING_ENABLED
 TESTS				= $(check_PROGRAMS)
@@ -62,6 +64,9 @@ tests_version_LDADD			= $(ccmemory_tests_ldadd)
 
 tests_standard_allocator_CPPFLAGS	= $(ccmemory_tests_cppflags)
 tests_standard_allocator_LDADD		= $(ccmemory_tests_ldadd)
+
+tests_memory_blocks_CPPFLAGS		= $(ccmemory_tests_cppflags)
+tests_memory_blocks_LDADD		= $(ccmemory_tests_ldadd)
 
 ## --------------------------------------------------------------------
 

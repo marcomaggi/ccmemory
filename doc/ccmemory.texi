@@ -130,6 +130,7 @@ included in the section entitled ``@gnu{} Free Documentation License''.
 * version::                     Version functions.
 * allocators::                  The generic allocators @api{}.
 * std::                         The standard allocator.
+* blocks::                      Blocks of memory.
 * utils::                       Utility definitions.
 
 Appendices
@@ -394,6 +395,70 @@ returns @cnull{}.
 Release memory in a way similar to the standard @cfunc{free}, using the standard allocator.  If an
 error occurs: an exception is raised by jumping to the location @var{L}.
 @end deftypefun
+
+@c page
+@node blocks
+@chapter Blocks of memory
+
+
+@menu
+* blocks typedefs::             Type definitions.
+* blocks constructors::         Constructors and destructors.
+@end menu
+
+@c page
+@node blocks typedefs
+@section Type definitions
+
+
+@deftp {Struct Typedef} ccmem_block_t
+Type of @code{struct} representing a block of memory.  It has the following fields:
+
+@table @code
+@item size_t len
+The number of octets referenced by this block.
+
+@item uint8_t * ptr
+Pointer to the first octet in this block.
+@end table
+
+Blocks are so small (two machine words) that they can be used as arguments to function and return
+values with a very small overhead.
+@end deftp
+
+@c page
+@node blocks constructors
+@section Constructors and destructors
+
+
+Example of allocating and releasing a memory block:
+
+@example
+cce_location_t        L[1];
+
+if (cce_location(L)) @{
+  cce_run_error_handlers_final(L);
+@} else @{
+   ccmem_block_t  B =
+     ccmem_block_new(L, ccmem_standard_allocator, 4096);
+
+  ccmem_block_delete(L, ccmem_standard_allocator, B);
+  cce_run_cleanup_handlers(L);
+@}
+@end example
+
+
+@deftypefun ccmem_block_t ccmem_block_new (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
+exception by jumping to the location @var{L}.
+@end deftypefun
+
+
+@deftypefun void ccmem_block_delete (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
+Release memory using @var{A}.  Only blocks allocated by @var{A} can be released by @var{A}.  If an
+error occurs: raise an exception by jumping to the location @var{L}.
+@end deftypefun
+
 
 @c page
 @node utils
