@@ -74,6 +74,111 @@ test_1_2 (cce_destination_t upper_L)
 }
 
 
+/** --------------------------------------------------------------------
+ ** Memory allocation and release using exception handlers.
+ ** ----------------------------------------------------------------- */
+
+void
+test_2_1 (cce_destination_t upper_L)
+{
+  cce_location_t		L[1];
+  ccmem_block_clean_handler_t	B_H[1];
+
+  if (cce_location(L)) {
+    cce_run_error_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
+    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
+
+    cctests_assert(L, 4096 == B.len);
+    cctests_assert(L, NULL != B.ptr);
+
+    cce_run_cleanup_handlers(L);
+  }
+}
+
+void
+test_2_2 (cce_destination_t upper_L)
+{
+  cce_location_t		L[1];
+  ccmem_block_clean_handler_t	B_H[1];
+
+  if (cce_location(L)) {
+    cce_run_error_handlers_raise(L, upper_L);
+  } else {
+    cce_location_t		inner_L[1];
+    ccmem_block_error_handler_t	inner_B_H[1];
+    ccmem_block_t		B;
+
+    if (cce_location(L)) {
+      cce_run_error_handlers_raise(inner_L, L);
+    } else {
+      B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
+      ccmem_block_register_error_handler(L, inner_B_H, ccmem_standard_allocator, B);
+
+      cctests_assert(L, 4096 == B.len);
+      cctests_assert(L, NULL != B.ptr);
+
+      cce_run_cleanup_handlers(L);
+    }
+
+    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
+    cce_run_cleanup_handlers(L);
+  }
+}
+
+
+/** --------------------------------------------------------------------
+ ** Memory allocation and release using guarded constructors.
+ ** ----------------------------------------------------------------- */
+
+void
+test_3_1 (cce_destination_t upper_L)
+{
+  cce_location_t		L[1];
+  ccmem_block_clean_handler_t	B_H[1];
+
+  if (cce_location(L)) {
+    cce_run_error_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	B = ccmem_block_new_guarded(L, B_H, ccmem_standard_allocator, 4096);
+
+    cctests_assert(L, 4096 == B.len);
+    cctests_assert(L, NULL != B.ptr);
+
+    cce_run_cleanup_handlers(L);
+  }
+}
+
+void
+test_3_2 (cce_destination_t upper_L)
+{
+  cce_location_t		L[1];
+  ccmem_block_clean_handler_t	B_H[1];
+
+  if (cce_location(L)) {
+    cce_run_error_handlers_raise(L, upper_L);
+  } else {
+    cce_location_t		inner_L[1];
+    ccmem_block_error_handler_t	inner_B_H[1];
+    ccmem_block_t		B;
+
+    if (cce_location(L)) {
+      cce_run_error_handlers_raise(inner_L, L);
+    } else {
+      B = ccmem_block_new_guarded(L, inner_B_H, ccmem_standard_allocator, 4096);
+      cctests_assert(L, 4096 == B.len);
+      cctests_assert(L, NULL != B.ptr);
+
+      cce_run_cleanup_handlers(L);
+    }
+
+    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
+    cce_run_cleanup_handlers(L);
+  }
+}
+
+
 int
 main (void)
 {
@@ -83,6 +188,20 @@ main (void)
     {
       cctests_run(test_1_1);
       cctests_run(test_1_2);
+    }
+    cctests_end_group();
+
+    cctests_begin_group("memory allocation and release using exception handlers");
+    {
+      cctests_run(test_2_1);
+      cctests_run(test_2_2);
+    }
+    cctests_end_group();
+
+    cctests_begin_group("memory allocation and release using guarded constructors");
+    {
+      cctests_run(test_3_1);
+      cctests_run(test_3_2);
     }
     cctests_end_group();
   }

@@ -251,6 +251,12 @@ struct ccmem_block_error_handler_t {
   ccmem_block_t			B;
 };
 
+ccmem_decl void ccmem_block_register_clean_handler (cce_destination_t L, ccmem_block_clean_handler_t * H,
+						    ccmem_allocator_t const * const A, ccmem_block_t B);
+
+ccmem_decl void ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handler_t * H,
+						    ccmem_allocator_t const * const A, ccmem_block_t B);
+
 ccmem_decl ccmem_block_t ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H,
 							ccmem_allocator_t const * const A, size_t const len);
 

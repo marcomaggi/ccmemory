@@ -43,22 +43,42 @@ ccmem_block_delete_handler (cce_condition_t const * C CCMEM_UNUSED, cce_handler_
   cce_location_t	L[1];
 
   if (cce_location(L)) {
-    /* !!!! what to do here !!!!!!!! */
+    /* The exception is discarded here!!!! */
     cce_run_error_handlers_final(L);
   } else {
+    if (0) { fprintf(stderr, "%s: releasing block %p\n", __func__, (void *)H->B.ptr); }
     ccmem_block_delete(L, H->A, H->B);
     cce_run_cleanup_handlers(L);
   }
 }
 
-ccmem_block_t
-ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
+void
+ccmem_block_register_clean_handler (cce_destination_t L, ccmem_block_clean_handler_t * H,
+				    ccmem_allocator_t const * const A, ccmem_block_t B)
 {
-  ccmem_block_t	B = ccmem_block_new(L, A, len);
   H->handler.handler.function	= ccmem_block_delete_handler;
   H->A	= A;
   H->B	= B;
   cce_register_clean_handler(L, &(H->handler.handler));
+}
+
+void
+ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handler_t * H,
+				    ccmem_allocator_t const * const A, ccmem_block_t B)
+{
+  H->handler.handler.function	= ccmem_block_delete_handler;
+  H->A	= A;
+  H->B	= B;
+  cce_register_error_handler(L, &(H->handler.handler));
+}
+
+/* ------------------------------------------------------------------ */
+
+ccmem_block_t
+ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
+{
+  ccmem_block_t	B = ccmem_block_new(L, A, len);
+  ccmem_block_register_clean_handler(L, H, A, B);
   return B;
 }
 
@@ -66,10 +86,7 @@ ccmem_block_t
 ccmem_block_new_guarded_error (cce_destination_t L, ccmem_block_error_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
 {
   ccmem_block_t B = ccmem_block_new(L, A, len);
-  H->handler.handler.function	= ccmem_block_delete_handler;
-  H->A	= A;
-  H->B	= B;
-  cce_register_error_handler(L, &(H->handler.handler));
+  ccmem_block_register_error_handler(L, H, A, B);
   return B;
 }
 
