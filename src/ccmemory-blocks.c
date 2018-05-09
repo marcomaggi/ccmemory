@@ -33,7 +33,7 @@
 
 
 /** --------------------------------------------------------------------
- ** Predefined memory allocator.
+ ** Exception handlers.
  ** ----------------------------------------------------------------- */
 
 static void
@@ -72,7 +72,10 @@ ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handl
   cce_register_error_handler(L, &(H->handler.handler));
 }
 
-/* ------------------------------------------------------------------ */
+
+/** --------------------------------------------------------------------
+ ** Guarded allocation.
+ ** ----------------------------------------------------------------- */
 
 ccmem_block_t
 ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
@@ -88,6 +91,37 @@ ccmem_block_new_guarded_error (cce_destination_t L, ccmem_block_error_handler_t 
   ccmem_block_t B = ccmem_block_new(L, A, len);
   ccmem_block_register_error_handler(L, H, A, B);
   return B;
+}
+
+
+/** --------------------------------------------------------------------
+ ** Operations.
+ ** ----------------------------------------------------------------- */
+
+ccmem_block_t
+ccmem_block_shift (ccmem_block_t const A, ssize_t const offset, size_t const dim)
+{
+  if ((0 == dim) || (0 == offset)) {
+    return A;
+  } else if (1 == dim) {
+    ccmem_block_t	B = {
+      .ptr = A.ptr + offset,
+      .len = A.len + offset
+    };
+    return B;
+  } else if (1 == offset) {
+    ccmem_block_t	B = {
+      .ptr = A.ptr + dim,
+      .len = A.len + dim
+    };
+    return B;
+  } else {
+    ccmem_block_t	B = {
+      .ptr = A.ptr + offset * dim,
+      .len = A.len + offset * dim
+    };
+    return B;
+  }
 }
 
 /* end of file */

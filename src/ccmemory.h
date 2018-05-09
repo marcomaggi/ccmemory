@@ -270,57 +270,51 @@ ccmem_decl ccmem_block_t ccmem_block_new_guarded_error (cce_destination_t L, ccm
 
 /* ------------------------------------------------------------------ */
 
+__attribute__((__always_inline__))
+static inline bool
+ccmem_block_is_empty (ccmem_block_t B)
+{
+  return (0 == B.len);
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_block_is_null (ccmem_block_t B)
+{
+  return (NULL == B.ptr);
+}
+
+/* ------------------------------------------------------------------ */
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_block_memset (ccmem_block_t B, uint8_t octet)
+{
+  memset(B.ptr, octet, B.len);
+}
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_block_clean (ccmem_block_t B)
+{
+  ccmem_block_memset(B, 0);
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline void
+ccmem_block_nullify (ccmem_block_t * B)
+{
+  B->ptr = NULL;
+  B->len = 0;
+}
+
+ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim);
+
+
+/* ------------------------------------------------------------------ */
+
 #if 0
 
-static inline __attribute__((__always_inline__,__nonnull__))
-void
-ccmem_block_set (ccmem_block_t * block, void * p, size_t len)
-{
-  block->ptr = p;
-  block->len = len;
-}
-static inline __attribute__((__always_inline__,__nonnull__))
-void
-ccmem_block_reset (ccmem_block_t * block)
-{
-  block->ptr = NULL;
-  block->len = 0;
-}
-static inline __attribute__((__always_inline__))
-ccmem_bool_t
-ccmem_block_is_null (ccmem_block_t block)
-{
-  return (NULL == block.ptr);
-}
-static inline __attribute__((__always_inline__))
-void
-ccmem_block_clean_memory (ccmem_block_t block)
-{
-  memset(block.ptr, '\0', block.len);
-}
-static inline __attribute__((__always_inline__))
-ccmem_block_t
-ccmem_block_alloc (ccmem_allocator_t allocator, size_t dim)
-{
-  ccmem_block_t	block = { .ptr = NULL, .len = dim };
-  allocator.alloc(allocator.data, &(block.ptr), dim);
-  return block;
-}
-static inline __attribute__((__always_inline__))
-ccmem_block_t
-ccmem_block_realloc (ccmem_allocator_t allocator, ccmem_block_t block, size_t new_dim)
-{
-  allocator.alloc(allocator.data, &(block.ptr), new_dim);
-  block.len = new_dim;
-  return block;
-}
-static inline __attribute__((__always_inline__))
-void
-ccmem_block_free (ccmem_allocator_t allocator, ccmem_block_t block)
-{
-  if (block.ptr)
-    allocator.alloc(allocator.data, &(block.ptr), 0);
-}
 static inline void
 ccmem_block_shift_x (ccmem_block_t * block, ssize_t offset, size_t dim)
 {
@@ -333,23 +327,6 @@ ccmem_block_shift_x (ccmem_block_t * block, ssize_t offset, size_t dim)
       block->len -= offset * dim;
     }
   }
-}
-static inline ccmem_block_t
-ccmem_block_shift (ccmem_block_t A, ssize_t offset, size_t dim)
-{
-  ccmem_block_t	B;
-  if (dim) {
-    if (1 != dim) {
-      B.ptr = A.ptr + offset;
-      B.len = A.len + offset;
-    } else {
-      B.ptr = A.ptr + offset * dim;
-      B.len = A.len + offset * dim;
-    }
-  } else {
-    B = A;
-  }
-  return B;
 }
 static inline __attribute__((__always_inline__))
 ccmem_block_t

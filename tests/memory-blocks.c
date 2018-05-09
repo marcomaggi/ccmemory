@@ -32,7 +32,8 @@
  ** ----------------------------------------------------------------- */
 
 #include "ccmemory.h"
-#include "cctests.h"
+#include <cctests.h>
+#include <complex.h>
 
 
 /** --------------------------------------------------------------------
@@ -179,6 +180,53 @@ test_3_2 (cce_destination_t upper_L)
 }
 
 
+/** --------------------------------------------------------------------
+ ** Operations.
+ ** ----------------------------------------------------------------- */
+
+void
+test_4_1_1 (cce_destination_t L)
+/* Test for "ccmem_block_shift()". */
+{
+  static const complex	C[3] = {
+    CMPLX(1.0, 2.0),
+    CMPLX(3.0, 4.0),
+    CMPLX(5.0, 6.0)
+  };
+
+  ccmem_block_t	B = {
+    .ptr = (uint8_t *)C,
+    .len = 3 * sizeof(complex)
+  };
+
+  complex *	Z;
+
+  Z = (complex *)B.ptr;
+  cctests_assert_equal_double(L, 1.0, creal(*Z));
+  cctests_assert_equal_double(L, 2.0, cimag(*Z));
+
+  B = ccmem_block_shift(B, +1, sizeof(complex));
+  Z = (complex *)B.ptr;
+  cctests_assert_equal_double(L, 3.0, creal(*Z));
+  cctests_assert_equal_double(L, 4.0, cimag(*Z));
+
+  B = ccmem_block_shift(B, -1, sizeof(complex));
+  Z = (complex *)B.ptr;
+  cctests_assert_equal_double(L, 1.0, creal(*Z));
+  cctests_assert_equal_double(L, 2.0, cimag(*Z));
+
+  B = ccmem_block_shift(B, +2, sizeof(complex));
+  Z = (complex *)B.ptr;
+  cctests_assert_equal_double(L, 5.0, creal(*Z));
+  cctests_assert_equal_double(L, 6.0, cimag(*Z));
+
+  B = ccmem_block_shift(B, -2, sizeof(complex));
+  Z = (complex *)B.ptr;
+  cctests_assert_equal_double(L, 1.0, creal(*Z));
+  cctests_assert_equal_double(L, 2.0, cimag(*Z));
+}
+
+
 int
 main (void)
 {
@@ -202,6 +250,12 @@ main (void)
     {
       cctests_run(test_3_1);
       cctests_run(test_3_2);
+    }
+    cctests_end_group();
+
+    cctests_begin_group("operations");
+    {
+      cctests_run(test_4_1_1);
     }
     cctests_end_group();
   }

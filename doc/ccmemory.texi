@@ -406,6 +406,8 @@ error occurs: an exception is raised by jumping to the location @var{L}.
 * blocks constructors::         Constructors and destructors.
 * blocks handlers::             Exception handlers for memory blocks.
 * blocks guarded::              Guarded constructors.
+* blocks predicates::           Memory blocks predicates.
+* blocks operations::           Operating on memory blocks.
 @end menu
 
 @c page
@@ -562,6 +564,58 @@ The allocator and the block are registered in the exception handler @var{H}, so 
 released in case of error.
 @end table
 @end deftypefn
+
+@c page
+@node blocks predicates
+@section Memory blocks predicates
+
+
+@deftypefun bool ccmem_block_is_empty (ccmem_block_t @var{B})
+Return @ctrue{} if the block is empty (the number of referenced octets is zero); otherwise return
+@cfalse{}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_block_is_null (ccmem_block_t @var{B})
+Return @ctrue{} if the block is nullified (the pointer is @cnull{}); otherwise return @cfalse{}.
+@end deftypefun
+
+@c page
+@node blocks operations
+@section Operating on memory blocks
+
+
+@deftypefun void ccmem_block_memset (ccmem_block_t @var{B}, uint8_t @var{octet})
+Set to @var{octet} all the octets referenced by @var{B}.
+@end deftypefun
+
+
+@deftypefun void ccmem_block_clean (ccmem_block_t @var{B})
+Set to zero all the octets referenced by @var{B}.
+@end deftypefun
+
+
+@deftypefun void ccmem_block_nullify (ccmem_block_t * @var{BP})
+Nullify the block by setting the pointer to @cnull{} and the number of octets to zero.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_shift (ccmem_block_t @var{B}, ssize_t @var{offset}, size_t @var{dim})
+Imagine that @var{B} is referencing a block of memory holding objects of size @var{dim}; build and
+return a new block referencing the object at @var{offset} objects forwards or backwards.
+
+@example
+#include <complex.h>
+
+cce_location_t  L[1];
+
+ccmem_block_t  B = ccmem_block_new(L, ccmem_standard_allocator,
+  3 * sizeof(complex));
+
+ccmem_block_t  X = ccmem_block_shift(B, +2, sizeof(complex));
+ccmem_block_t  Y = ccmem_block_shift(X, -1, sizeof(complex));
+@end example
+@end deftypefun
 
 @c page
 @node utils
