@@ -226,6 +226,32 @@ test_4_1_1 (cce_destination_t L)
   cctests_assert_equal_double(L, 2.0, cimag(*Z));
 }
 
+/* ------------------------------------------------------------------ */
+
+void
+test_4_2_1 (cce_destination_t upper_L)
+/* Test for "ccmem_block_difference()". */
+{
+  cce_location_t		L[1];
+  ccmem_block_clean_handler_t	A_H[1];
+
+  if (cce_location(L)) {
+    cce_run_error_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	A = ccmem_block_new_guarded(L, A_H, ccmem_standard_allocator, 4096);
+    ccmem_block_t	B = {
+      .ptr = A.ptr,
+      .len = 1024,
+    };
+    ccmem_block_t	C = ccmem_block_difference(A, B);
+
+    cctests_assert_equal_pointer(L, C.ptr, A.ptr + 1024);
+    cctests_assert_equal_size_t(L, C.len, A.len - 1024);
+
+    cce_run_cleanup_handlers(L);
+  }
+}
+
 
 int
 main (void)
@@ -256,6 +282,7 @@ main (void)
     cctests_begin_group("operations");
     {
       cctests_run(test_4_1_1);
+      cctests_run(test_4_2_1);
     }
     cctests_end_group();
   }

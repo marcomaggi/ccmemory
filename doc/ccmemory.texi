@@ -617,6 +617,27 @@ ccmem_block_t  Y = ccmem_block_shift(X, -1, sizeof(complex));
 @end example
 @end deftypefun
 
+
+@deftypefun ccmem_block_t ccmem_block_difference (ccmem_block_t @var{A}, ccmem_block_t @var{B})
+Build and return a new block representing the difference @math{@var{A} - @var{B}}.  If @var{C} is
+the returned block, this means:
+
+@example
+C.ptr = A.ptr
+C.len = A.len - B.len
+@end example
+
+@var{A} and @var{B} must have the same pointer and @var{A} must reference a number of octets greater
+than, or equal to, the one referenced by @var{B}, as in the following picture:
+
+@example
+                     A
+|---------------------------------------|
+|-----------------------|---------------|
+           B                    C
+@end example
+@end deftypefun
+
 @c page
 @node utils
 @chapter Utility definitions
