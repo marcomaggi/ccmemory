@@ -246,7 +246,7 @@ test_4_2_1 (cce_destination_t upper_L)
     ccmem_block_t	C = ccmem_block_difference(A, B);
 
     cctests_assert_equal_pointer(L, C.ptr, A.ptr + 1024);
-    cctests_assert_equal_size_t(L, C.len, A.len - 1024);
+    cctests_assert_equal_size(L, C.len, A.len - 1024);
 
     cce_run_cleanup_handlers(L);
   }
