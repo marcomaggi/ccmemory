@@ -179,24 +179,28 @@ ccmem_decl ccmem_allocator_t const * const ccmem_standard_allocator;
 
 /* ------------------------------------------------------------------ */
 
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
 static inline void *
 ccmem_std_malloc (cce_destination_t L, size_t size)
 {
   return ccmem_standard_allocator->methods->malloc(L, ccmem_standard_allocator, size);
 }
 
+__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
 static inline void *
 ccmem_std_realloc (cce_destination_t L, void * ptr, size_t newsize)
 {
   return ccmem_standard_allocator->methods->realloc(L, ccmem_standard_allocator, ptr, newsize);
 }
 
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
 static inline void *
 ccmem_std_calloc (cce_destination_t L, size_t count, size_t eltsize)
 {
   return ccmem_standard_allocator->methods->calloc(L, ccmem_standard_allocator, count, eltsize);
 }
 
+__attribute__((__always_inline__,__nonnull__(1,2)))
 static inline void
 ccmem_std_free (cce_destination_t L, void * ptr)
 {
@@ -215,7 +219,7 @@ typedef struct ccmem_block_t {
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1)))
+__attribute__((__always_inline__,__nonnull__(1,2)))
 static inline ccmem_block_t
 ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
 {
@@ -226,7 +230,7 @@ ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t 
   return B;
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+__attribute__((__always_inline__,__nonnull__(1,2)))
 static inline void
 ccmem_block_delete (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_block_t B)
 {
@@ -251,16 +255,20 @@ struct ccmem_block_error_handler_t {
 };
 
 ccmem_decl void ccmem_block_register_clean_handler (cce_destination_t L, ccmem_block_clean_handler_t * H,
-						    ccmem_allocator_t const * const A, ccmem_block_t B);
+						    ccmem_allocator_t const * const A, ccmem_block_t B)
+  __attribute__((__nonnull__(1,2,3)));
 
 ccmem_decl void ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handler_t * H,
-						    ccmem_allocator_t const * const A, ccmem_block_t B);
+						    ccmem_allocator_t const * const A, ccmem_block_t B)
+  __attribute__((__nonnull__(1,2,3)));
 
 ccmem_decl ccmem_block_t ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H,
-							ccmem_allocator_t const * const A, size_t const len);
+							ccmem_allocator_t const * const A, size_t const len)
+  __attribute__((__nonnull__(1,2,3)));
 
 ccmem_decl ccmem_block_t ccmem_block_new_guarded_error (cce_destination_t L, ccmem_block_error_handler_t * H,
-							ccmem_allocator_t const * const A, size_t const len);
+							ccmem_allocator_t const * const A, size_t const len)
+  __attribute__((__nonnull__(1,2,3)));
 
 #define ccmem_block_new_guarded(L,H,A,len) \
   _Generic((H), \
@@ -269,14 +277,14 @@ ccmem_decl ccmem_block_t ccmem_block_new_guarded_error (cce_destination_t L, ccm
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__))
+__attribute__((__always_inline__,__const__))
 static inline bool
 ccmem_block_is_empty (ccmem_block_t B)
 {
   return (0 == B.len);
 }
 
-__attribute__((__always_inline__))
+__attribute__((__always_inline__,__const__))
 static inline bool
 ccmem_block_is_null (ccmem_block_t B)
 {
