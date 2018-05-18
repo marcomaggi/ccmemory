@@ -87,10 +87,8 @@ extern "C" {
  ** ----------------------------------------------------------------- */
 
 #include <ccexceptions.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -309,20 +307,11 @@ ccmem_block_nullify (ccmem_block_t * B)
   B->len = 0;
 }
 
-ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim);
+ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim)
+  __attribute__((__const__));
 
-static inline __attribute__((__always_inline__))
-ccmem_block_t
-ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
-{
-  assert(A.ptr == B.ptr);
-  assert(A.len >= B.len);
-  ccmem_block_t	C = {
-    .ptr = A.ptr + B.len,
-    .len = A.len - B.len
-  };
-  return C;
-}
+ccmem_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
+  __attribute__((__const__));
 
 
 /** --------------------------------------------------------------------

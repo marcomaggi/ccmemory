@@ -37,6 +37,7 @@
 #  include <config.h>
 #endif
 #include "ccmemory.h"
+#include <assert.h>
 
 
 /** --------------------------------------------------------------------

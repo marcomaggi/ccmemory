@@ -124,4 +124,16 @@ ccmem_block_shift (ccmem_block_t const A, ssize_t const offset, size_t const dim
   }
 }
 
+ccmem_block_t
+ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
+{
+  assert(A.ptr == B.ptr);
+  assert(A.len >= B.len);
+  ccmem_block_t	C = {
+    .ptr = A.ptr + B.len,
+    .len = A.len - B.len
+  };
+  return C;
+}
+
 /* end of file */
