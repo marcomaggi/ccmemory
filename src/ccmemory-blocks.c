@@ -48,7 +48,7 @@ ccmem_block_delete_handler (cce_condition_t const * C CCMEM_UNUSED, cce_handler_
   } else {
     if (0) { fprintf(stderr, "%s: releasing block %p\n", __func__, (void *)H->B.ptr); }
     ccmem_block_delete(L, H->A, H->B);
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 

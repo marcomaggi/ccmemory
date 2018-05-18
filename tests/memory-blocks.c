@@ -70,7 +70,7 @@ test_1_2 (cce_destination_t upper_L)
 
     ccmem_block_delete(L, ccmem_standard_allocator, B);
 
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 
@@ -94,7 +94,7 @@ test_2_1 (cce_destination_t upper_L)
     cctests_assert(L, 4096 == B.len);
     cctests_assert(L, NULL != B.ptr);
 
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 
@@ -120,11 +120,11 @@ test_2_2 (cce_destination_t upper_L)
       cctests_assert(L, 4096 == B.len);
       cctests_assert(L, NULL != B.ptr);
 
-      cce_run_cleanup_handlers(L);
+      cce_run_clean_handlers(L);
     }
 
     ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 
@@ -147,7 +147,7 @@ test_3_1 (cce_destination_t upper_L)
     cctests_assert(L, 4096 == B.len);
     cctests_assert(L, NULL != B.ptr);
 
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 
@@ -171,11 +171,11 @@ test_3_2 (cce_destination_t upper_L)
       cctests_assert(L, 4096 == B.len);
       cctests_assert(L, NULL != B.ptr);
 
-      cce_run_cleanup_handlers(L);
+      cce_run_clean_handlers(L);
     }
 
     ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 
@@ -248,7 +248,7 @@ test_4_2_1 (cce_destination_t upper_L)
     cctests_assert_equal_pointer(L, C.ptr, A.ptr + 1024);
     cctests_assert_equal_size(L, C.len, A.len - 1024);
 
-    cce_run_cleanup_handlers(L);
+    cce_run_clean_handlers(L);
   }
 }
 

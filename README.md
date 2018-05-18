@@ -1,7 +1,6 @@
 # ccmemory
 
 [![Build Status](https://travis-ci.org/marcomaggi/ccmemory.svg?branch=master)](https://travis-ci.org/marcomaggi/ccmemory)
-[![Coverity passed](https://scan.coverity.com/projects/12801/badge.svg)](https://scan.coverity.com/projects/marcomaggi-ccmemory)
 [![codecov](https://codecov.io/gh/marcomaggi/ccmemory/branch/master/graph/badge.svg)](https://codecov.io/gh/marcomaggi/ccmemory)
 
 
@@ -11,9 +10,8 @@ This package installs  a C11 language library  implementing an interface
 for custom memory allocators.
 
 This  package supports  POSIX platforms.   This package  depends on  the
-package CCExceptions,  at least version  0.7.2.  To run the  test suite:
-this  package  depends  upon  the  package  CCTests,  at  least  version
-0.2.0-devel.0.
+package CCExceptions,  at least version  0.8.0.  To run the  test suite:
+this package depends upon the package CCTests, at least version 0.2.0.
 
 The package uses the GNU Autotools and it is tested, using Travis CI, on
 both Ubuntu GNU+Linux systems and OS X systems.
@@ -187,20 +185,6 @@ Usage of this  service is configured through the  file `.travis.yml` and
 additional scripts are under the directory `meta/travis-ci`.
 
 
-### Coverity Scan
-
-Coverity Scan is  a service providing the results of  static analysis on
-open source coding projects.  We can find this project's dashboard at:
-
-[https://scan.coverity.com/projects/marcomaggi-ccmemory](https://scan.coverity.com/projects/marcomaggi-ccmemory)
-
-Usage of this  service is implemented with make rules;  see the relevant
-section in the file `Makefile.am`.  To access the service a unique token
-is needed: this token is private and is owned by the current maintainer.
-
-
-### Clang's Static Analyzer
-
 The Clang Static Analyzer is a source code analysis tool that finds bugs
 in C, C++, and Objective-C programs.  It is distributed along with Clang
 and we can find it at:
@@ -221,4 +205,15 @@ project's dashboard at:
 Usage of  this service is  implemented through direct  interface between
 GitHub and Codecov  sites; it configured through  the file `codecov.yml`
 and appropriate entries in Travis CI's matrix of builds.
+
+
+### Codacy
+
+Codacy is  an online service  providing code  review.  We can  find this
+project's dashboard at:
+
+[https://www.codacy.com/app/marcomaggi/ccmemory](https://www.codacy.com/app/marcomaggi/ccmemory)
+
+Usage of this service is  implemented through direct integration between
+GitHub and Codacy sites.
 
