@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/marcomaggi/ccmemory.svg?branch=master)](https://travis-ci.org/marcomaggi/ccmemory)
 [![codecov](https://codecov.io/gh/marcomaggi/ccmemory/branch/master/graph/badge.svg)](https://codecov.io/gh/marcomaggi/ccmemory)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f28476e772ba4c78b4290b18c563170f)](https://www.codacy.com/app/marcomaggi/ccmemory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=marcomaggi/ccmemory&amp;utm_campaign=Badge_Grade)
 
 
 ## Introduction
