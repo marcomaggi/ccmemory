@@ -188,7 +188,7 @@ void
 test_4_1_1 (cce_destination_t L)
 /* Test for "ccmem_block_shift()". */
 {
-  static const complex double	C[3] = {
+  static const double complex	C[3] = {
     CMPLX(1.0, 2.0),
     CMPLX(3.0, 4.0),
     CMPLX(5.0, 6.0)
@@ -196,32 +196,32 @@ test_4_1_1 (cce_destination_t L)
 
   ccmem_block_t	B = {
     .ptr = (uint8_t *)C,
-    .len = 3 * sizeof(complex double)
+    .len = 3 * sizeof(double complex)
   };
 
-  complex double *	Z;
+  double complex *	Z;
 
-  Z = (complex double *)B.ptr;
+  Z = (double complex *)B.ptr;
   cctests_assert_equal_double(L, 1.0, creal(*Z));
   cctests_assert_equal_double(L, 2.0, cimag(*Z));
 
-  B = ccmem_block_shift(B, +1, sizeof(complex double));
-  Z = (complex double *)B.ptr;
+  B = ccmem_block_shift(B, +1, sizeof(double complex));
+  Z = (double complex *)B.ptr;
   cctests_assert_equal_double(L, 3.0, creal(*Z));
   cctests_assert_equal_double(L, 4.0, cimag(*Z));
 
-  B = ccmem_block_shift(B, -1, sizeof(complex double));
-  Z = (complex double *)B.ptr;
+  B = ccmem_block_shift(B, -1, sizeof(double complex));
+  Z = (double complex *)B.ptr;
   cctests_assert_equal_double(L, 1.0, creal(*Z));
   cctests_assert_equal_double(L, 2.0, cimag(*Z));
 
-  B = ccmem_block_shift(B, +2, sizeof(complex double));
-  Z = (complex double *)B.ptr;
+  B = ccmem_block_shift(B, +2, sizeof(double complex));
+  Z = (double complex *)B.ptr;
   cctests_assert_equal_double(L, 5.0, creal(*Z));
   cctests_assert_equal_double(L, 6.0, cimag(*Z));
 
-  B = ccmem_block_shift(B, -2, sizeof(complex double));
-  Z = (complex double *)B.ptr;
+  B = ccmem_block_shift(B, -2, sizeof(double complex));
+  Z = (double complex *)B.ptr;
   cctests_assert_equal_double(L, 1.0, creal(*Z));
   cctests_assert_equal_double(L, 2.0, cimag(*Z));
 }
