@@ -447,7 +447,7 @@ if (cce_location(L)) @{
      ccmem_block_new(L, ccmem_standard_allocator, 4096);
 
   ccmem_block_delete(L, ccmem_standard_allocator, B);
-  cce_run_cleanup_handlers(L);
+  cce_run_clean_handlers(L);
 @}
 @end example
 
@@ -483,7 +483,7 @@ if (cce_location(L)) @{
     ccmem_standard_allocator, B);
 
   /* ... do something with B ... */
-  cce_run_cleanup_handlers(L);
+  cce_run_clean_handlers(L);
 @}
 @end example
 
@@ -523,7 +523,7 @@ if (cce_location(L)) @{
                        ccmem_standard_allocator, 4096);
 
   /* ... do something with B ... */
-  cce_run_cleanup_handlers(L);
+  cce_run_clean_handlers(L);
 @}
 @end example
 
