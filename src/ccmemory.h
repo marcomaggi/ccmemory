@@ -146,24 +146,28 @@ struct ccmem_allocator_t {
 
 /* ------------------------------------------------------------------ */
 
+__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
 static inline void *
 ccmem_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t size)
 {
   return A->methods->malloc(L, A, size);
 }
 
+__attribute__((__always_inline__,__nonnull__(1,2,3),__returns_nonnull__))
 static inline void *
 ccmem_realloc (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize)
 {
   return A->methods->realloc(L, A, ptr, newsize);
 }
 
+__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
 static inline void *
 ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize)
 {
   return A->methods->calloc(L, A, count, eltsize);
 }
 
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
 static inline void
 ccmem_free (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr)
 {
