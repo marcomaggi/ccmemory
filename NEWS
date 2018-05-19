@@ -3,6 +3,12 @@
 			News file for CCMemory
 			======================
 
+Revision 0.1.0-devel.1
+----------------------
+
+* Fixed data script for "pkg-config".
+
+
 Revision 0.1.0-devel.0
 ----------------------
 
