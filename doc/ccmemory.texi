@@ -711,6 +711,21 @@ and as backup at:
 
 @center @value{BITBUCKET_URL}
 
+@noindent
+the package CCExceptions is available at:
+
+@center @url{https://github.com/marcomaggi/ccexceptions/}
+
+@noindent
+the package CCMemory is available at:
+
+@center @url{https://github.com/marcomaggi/ccmemory/}
+
+@noindent
+the package CCTests is available at:
+
+@center @url{https://github.com/marcomaggi/cctests/}
+
 @c page
 @node concept index
 @appendix An entry for each concept
