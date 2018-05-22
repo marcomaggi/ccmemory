@@ -3,6 +3,12 @@
 			News file for CCMemory
 			======================
 
+Revision 0.1.0-devel.2
+----------------------
+
+* Better check for CCTests in "configure.ac".
+
+
 Revision 0.1.0-devel.1
 ----------------------
 
