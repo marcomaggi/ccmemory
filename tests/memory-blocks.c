@@ -59,7 +59,7 @@ test_1_2 (cce_destination_t upper_L)
   cce_location_t	L[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
 
@@ -70,7 +70,7 @@ test_1_2 (cce_destination_t upper_L)
 
     ccmem_block_delete(L, ccmem_standard_allocator, B);
 
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 
@@ -86,7 +86,7 @@ test_2_1 (cce_destination_t upper_L)
   ccmem_block_clean_handler_t	B_H[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
     ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
@@ -94,7 +94,7 @@ test_2_1 (cce_destination_t upper_L)
     cctests_assert(L, 4096 == B.len);
     cctests_assert(L, NULL != B.ptr);
 
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 
@@ -105,14 +105,14 @@ test_2_2 (cce_destination_t upper_L)
   ccmem_block_clean_handler_t	B_H[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     cce_location_t		inner_L[1];
     ccmem_block_error_handler_t	inner_B_H[1];
     ccmem_block_t		B;
 
     if (cce_location(L)) {
-      cce_run_error_handlers_raise(inner_L, L);
+      cce_run_catch_handlers_raise(inner_L, L);
     } else {
       B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
       ccmem_block_register_error_handler(L, inner_B_H, ccmem_standard_allocator, B);
@@ -120,11 +120,11 @@ test_2_2 (cce_destination_t upper_L)
       cctests_assert(L, 4096 == B.len);
       cctests_assert(L, NULL != B.ptr);
 
-      cce_run_clean_handlers(L);
+      cce_run_body_handlers(L);
     }
 
     ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 
@@ -140,14 +140,14 @@ test_3_1 (cce_destination_t upper_L)
   ccmem_block_clean_handler_t	B_H[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     ccmem_block_t	B = ccmem_block_new_guarded(L, B_H, ccmem_standard_allocator, 4096);
 
     cctests_assert(L, 4096 == B.len);
     cctests_assert(L, NULL != B.ptr);
 
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 
@@ -158,24 +158,24 @@ test_3_2 (cce_destination_t upper_L)
   ccmem_block_clean_handler_t	B_H[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     cce_location_t		inner_L[1];
     ccmem_block_error_handler_t	inner_B_H[1];
     ccmem_block_t		B;
 
     if (cce_location(L)) {
-      cce_run_error_handlers_raise(inner_L, L);
+      cce_run_catch_handlers_raise(inner_L, L);
     } else {
       B = ccmem_block_new_guarded(L, inner_B_H, ccmem_standard_allocator, 4096);
       cctests_assert(L, 4096 == B.len);
       cctests_assert(L, NULL != B.ptr);
 
-      cce_run_clean_handlers(L);
+      cce_run_body_handlers(L);
     }
 
     ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 
@@ -236,7 +236,7 @@ test_4_2_1 (cce_destination_t upper_L)
   ccmem_block_clean_handler_t	A_H[1];
 
   if (cce_location(L)) {
-    cce_run_error_handlers_raise(L, upper_L);
+    cce_run_catch_handlers_raise(L, upper_L);
   } else {
     ccmem_block_t	A = ccmem_block_new_guarded(L, A_H, ccmem_standard_allocator, 4096);
     ccmem_block_t	B = {
@@ -248,7 +248,7 @@ test_4_2_1 (cce_destination_t upper_L)
     cctests_assert_equal_pointer(L, C.ptr, A.ptr + 1024);
     cctests_assert_equal_size(L, C.len, A.len - 1024);
 
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 

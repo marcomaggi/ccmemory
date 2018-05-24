@@ -2,7 +2,7 @@ dnl @configure_input@
 dnl
 
 AC_PREREQ([2.69])
-AC_INIT([CCMemory],[0.1.0-devel.2],
+AC_INIT([CCMemory],[0.1.0-devel.3],
   [marco.maggi-ipsu@poste.it],
   [ccmemory],[http://marcomaggi.github.com/ccmemory])
 dnl This is the revision number of this configure.ac
@@ -48,7 +48,7 @@ MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],1,0,0)
 dnl This is the version stored in the pkg-config data file.
 AC_SUBST([CCMEMORY_PKG_CONFIG_VERSION],[0.1])
 
-AS_VAR_SET([SLACKSTUFF_PACKAGE_VERSION],[0.1d0.2])
+AS_VAR_SET([SLACKSTUFF_PACKAGE_VERSION],[0.1d0.3])
 AC_SUBST([SLACKSTUFF_PACKAGE_VERSION])
 
 dnl page
@@ -82,7 +82,7 @@ dnl page
 
 MMUX_CHECK_PKG_CONFIG_MACROS
 PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.8.0])
-PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.2.0],,[AC_MSG_WARN([package CCTests not found])])
+PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.3.0],,[AC_MSG_WARN([package CCTests not found])])
 
 AM_CONDITIONAL([CCSEMVER_TESTING_ENABLED],[test -n "$CCTESTS_LIBS"])
 

@@ -44,11 +44,11 @@ ccmem_block_delete_handler (cce_condition_t const * C CCMEM_UNUSED, cce_handler_
 
   if (cce_location(L)) {
     /* The exception is discarded here!!!! */
-    cce_run_error_handlers_final(L);
+    cce_run_catch_handlers_final(L);
   } else {
     if (0) { fprintf(stderr, "%s: releasing block %p\n", __func__, (void *)H->B.ptr); }
     ccmem_block_delete(L, H->A, H->B);
-    cce_run_clean_handlers(L);
+    cce_run_body_handlers(L);
   }
 }
 

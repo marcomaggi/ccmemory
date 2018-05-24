@@ -9,6 +9,8 @@ Revision 0.1.0-devel.3
 * Added  missing URLs  for  dependencies to  the  documentation and  the
   README files.
 
+* Updated to CCExceptions v0.8.0-devel.2 and CCTests v0.3.0-devel.0.
+
 
 Revision 0.1.0-devel.2
 ----------------------
