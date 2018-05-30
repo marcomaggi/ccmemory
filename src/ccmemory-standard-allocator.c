@@ -58,7 +58,7 @@ ccmem_standard_allocator_calloc (cce_destination_t L, ccmem_allocator_t const * 
 }
 
 void
-ccmem_standard_allocator_free (cce_destination_t L CCMEM_UNUSED, ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr)
+ccmem_standard_allocator_free (ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr)
 {
   free(ptr);
 }

@@ -131,7 +131,7 @@ typedef struct ccmem_allocator_methods_t	ccmem_allocator_methods_t;
 typedef void * ccmem_malloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t size);
 typedef void * ccmem_realloc_fun_t (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize);
 typedef void * ccmem_calloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize);
-typedef void   ccmem_free_fun_t    (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr);
+typedef void   ccmem_free_fun_t                         (ccmem_allocator_t const * const A, void * ptr);
 
 struct ccmem_allocator_methods_t {
   ccmem_malloc_fun_t  * const	malloc;
@@ -167,11 +167,11 @@ ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t cou
   return A->methods->calloc(L, A, count, eltsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+__attribute__((__always_inline__,__nonnull__(1,2)))
 static inline void
-ccmem_free (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr)
+ccmem_free (ccmem_allocator_t const * const A, void * ptr)
 {
-  A->methods->free(L, A, ptr);
+  A->methods->free(A, ptr);
 }
 
 
@@ -204,11 +204,11 @@ ccmem_std_calloc (cce_destination_t L, size_t count, size_t eltsize)
   return ccmem_standard_allocator->methods->calloc(L, ccmem_standard_allocator, count, eltsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+__attribute__((__always_inline__,__nonnull__(1)))
 static inline void
-ccmem_std_free (cce_destination_t L, void * ptr)
+ccmem_std_free (void * ptr)
 {
-  ccmem_standard_allocator->methods->free(L, ccmem_standard_allocator, ptr);
+  ccmem_standard_allocator->methods->free(ccmem_standard_allocator, ptr);
 }
 
 
@@ -234,11 +234,11 @@ ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t 
   return B;
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+__attribute__((__always_inline__,__nonnull__(1)))
 static inline void
-ccmem_block_delete (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_block_t B)
+ccmem_block_delete (ccmem_allocator_t const * const A, ccmem_block_t B)
 {
-  ccmem_free(L, A, B.ptr);
+  ccmem_free(A, B.ptr);
 }
 
 /* ------------------------------------------------------------------ */

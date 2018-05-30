@@ -321,10 +321,13 @@ location @var{L}.  Functions of this type never return @cnull{}.
 @end deftypefun
 
 
-@deftypefun void ccmem_free_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr})
+@deftypefun void ccmem_free_fun_t (ccmem_allocator_t const * const @var{A}, void * @var{ptr})
 Type of function that releases memory in a way similar to the standard @cfunc{free}.  The function
 uses the allocator @var{A}.  Only memory allocated using the allocator @var{A} can be released with
-this function.  If an error occurs: an exception is raised by jumping to the location @var{L}.
+this function.
+
+Functions of this type @strong{must not} raise exceptions.  If an allocator fails to release memory:
+it should mark itself as ``in invalid state'' and fail to further allocate memory.
 @end deftypefun
 
 @c page
@@ -353,9 +356,8 @@ returns @cnull{}.
 @end deftypefun
 
 
-@deftypefun void ccmem_free (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr})
-Release memory in a way similar to the standard @cfunc{free}, using the allocator @var{A}.  If an
-error occurs: an exception is raised by jumping to the location @var{L}.
+@deftypefun void ccmem_free (ccmem_allocator_t const * const @var{A}, void * @var{ptr})
+Release memory in a way similar to the standard @cfunc{free}, using the allocator @var{A}.
 @end deftypefun
 
 @c page
@@ -391,9 +393,8 @@ returns @cnull{}.
 @end deftypefun
 
 
-@deftypefun void ccmem_std_free (cce_destination_t @var{L}, void * @var{ptr})
-Release memory in a way similar to the standard @cfunc{free}, using the standard allocator.  If an
-error occurs: an exception is raised by jumping to the location @var{L}.
+@deftypefun void ccmem_std_free (void * @var{ptr})
+Release memory in a way similar to the standard @cfunc{free}, using the standard allocator.
 @end deftypefun
 
 @c page
@@ -446,7 +447,7 @@ if (cce_location(L)) @{
    ccmem_block_t  B =
      ccmem_block_new(L, ccmem_standard_allocator, 4096);
 
-  ccmem_block_delete(L, ccmem_standard_allocator, B);
+  ccmem_block_delete(ccmem_standard_allocator, B);
   cce_run_clean_handlers(L);
 @}
 @end example
@@ -458,9 +459,8 @@ exception by jumping to the location @var{L}.
 @end deftypefun
 
 
-@deftypefun void ccmem_block_delete (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
-Release memory using @var{A}.  Only blocks allocated by @var{A} can be released by @var{A}.  If an
-error occurs: raise an exception by jumping to the location @var{L}.
+@deftypefun void ccmem_block_delete (ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
+Release memory using @var{A}.  Only blocks allocated by @var{A} can be released by @var{A}.
 @end deftypefun
 
 @c page
@@ -500,9 +500,6 @@ local context.  These types are wrappers for @objtype{cce_clean_handler_t} and
 @deftypefunx void ccmem_block_register_error_handler (cce_destination_t @var{L}, ccmem_block_error_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
 Register the allocator @var{A} and the block @var{B} in the handler @var{H} in the context of
 @var{L}.  The block is released using the allocator in case of cleaning or error.
-
-@strong{NOTE} If an error occurs releasing memory: the registered handler will @strong{discard} the
-raised exception.
 @end deftypefun
 
 @c page
@@ -532,9 +529,6 @@ if (cce_location(L)) @{
 Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
 exception by jumping to the location @var{L}.  The allocator and the block are registered in the
 exception handler @var{H}, so that the block is released in case of cleaning.
-
-@strong{NOTE} If an error occurs releasing memory: the registered handler will @strong{discard} the
-raised exception.
 @end deftypefun
 
 
@@ -542,9 +536,6 @@ raised exception.
 Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
 exception by jumping to the location @var{L}.  The allocator and the block are registered in the
 exception handler @var{H}, so that the block is released in case of error.
-
-@strong{NOTE} If an error occurs releasing memory: the registered handler will @strong{discard} the
-raised exception.
 @end deftypefun
 
 
@@ -552,14 +543,14 @@ raised exception.
 @deftypefnx {Preprocessor Macro} ccmem_block_t ccmem_block_new_guarded (cce_destination_t @var{L}, ccmem_block_error_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 This macro uses @code{_Generic} to dispatch the expansion according to the type of @var{H}.
 Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
-exception by jumping to the location @var{L}.  If the argument @var{H} is of type:
+exception by jumping to the location @var{L}.  If the argument @var{H} is a pointer of type:
 
 @table @code
-@item ccmem_block_clean_handler_t *
+@item ccmem_block_clean_handler_t
 The allocator and the block are registered in the exception handler @var{H}, so that the block is
 released in case of cleaning.
 
-@item ccmem_block_error_handler_t *
+@item ccmem_block_error_handler_t
 The allocator and the block are registered in the exception handler @var{H}, so that the block is
 released in case of error.
 @end table

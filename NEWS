@@ -3,6 +3,13 @@
 			News file for CCMemory
 			======================
 
+Revision 0.2.0-devel.0
+----------------------
+
+* Changed  API:  the  allocator's  free function  no  longer  raises  an
+  exception.
+
+
 Revision 0.1.0-devel.3
 ----------------------
 

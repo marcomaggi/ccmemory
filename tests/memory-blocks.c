@@ -56,7 +56,7 @@ test_1_1 (cce_destination_t L)
   cctests_assert(L, 4096 == B.len);
   cctests_assert(L, NULL != B.ptr);
 
-  ccmem_block_delete(L, ccmem_standard_allocator, B);
+  ccmem_block_delete(ccmem_standard_allocator, B);
 }
 
 void
@@ -74,7 +74,7 @@ test_1_2 (cce_destination_t upper_L)
     cctests_assert(L, 4096 == B.len);
     cctests_assert(L, NULL != B.ptr);
 
-    ccmem_block_delete(L, ccmem_standard_allocator, B);
+    ccmem_block_delete(ccmem_standard_allocator, B);
 
     cce_run_body_handlers(L);
   }
