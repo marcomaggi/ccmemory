@@ -90,6 +90,8 @@ extern "C" {
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 
 
