@@ -3,6 +3,12 @@
 			News file for CCMemory
 			======================
 
+Revision 0.2.0-devel.1
+----------------------
+
+* Added missing C headers includes.
+
+
 Revision 0.2.0-devel.0
 ----------------------
 
