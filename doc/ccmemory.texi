@@ -132,6 +132,7 @@ included in the section entitled ``@gnu{} Free Documentation License''.
 * std::                         The standard allocator.
 * handlers::                    Exception handlers.
 * blocks::                      Blocks of memory.
+* ascii::                       @ascii{} coded strings.
 * utils::                       Utility definitions.
 
 Appendices
@@ -800,6 +801,11 @@ if (cce_location(L)) @{
 @end example
 
 
+@deftypefun ccmem_block_t ccmem_new_block (uint8_t * @var{ptr}, size_t @var{len})
+Just initialise and return a new block with the given arguments.
+@end deftypefun
+
+
 @deftypefun ccmem_block_t ccmem_block_new (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
 exception by jumping to the location @var{L}.
@@ -974,6 +980,179 @@ than, or equal to, the one referenced by @var{B}, as in the following picture:
 |-----------------------|---------------|
            B                    C
 @end example
+@end deftypefun
+
+@c page
+@node ascii
+@chapter @ascii{} coded strings
+
+
+@menu
+* ascii non-zero::              Non--zero terminated strings.
+* ascii zero::                  Zero terminated strings.
+@end menu
+
+@c page
+@node ascii non-zero
+@section Non--zero terminated strings
+
+
+@deftp {Struct Typedef} ccmem_ascii_t
+Type representing an @ascii{} coded, non--zero terminated, string in memory.  Usually instances of
+this type are passed around by value.  It has the following fields:
+
+@table @code
+@item size_t len
+Number of characters in the string.
+
+@item char * ptr
+Pointer to the first character in the string.
+@end table
+@end deftp
+
+
+@deftypefun ccmem_ascii_t ccmem_new_ascii (char * @var{ptr}, size_t @var{len})
+Build and return a new @struct{} instance, initialised with the given operands.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_new_ascii_empty (void)
+Build and return a new @struct{} instance, representing an empty string.  The pointer field is set
+to @cnull{}; the length field is set to zero.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_new_ascii_from_str (char * @var{str})
+Build and return a new @struct{} instance, initialised with the given pointer to an @asciiz{}
+string.  The length of the string is determined with a call to @cfunc{strlen}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_ascii_is_empty (ccmem_ascii_t @var{S})
+Return @ctrue{} if the string is empty; otherwise return @cfalse{}.
+@end deftypefun
+
+
+@deftypefun void ccmem_ascii_clean_memory (ccmem_ascii_t @var{S})
+Reset to zero all the characters in the string.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_ascii_from_block (ccmem_block_t @var{B})
+Build and return a new @struct{} instance initialised with the fields from the given block.  The
+block is supposed to hold a valid @ascii{} string, with no zero characters inside.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_from_ascii (ccmem_ascii_t @var{S})
+Build and return a new block instance initialised with the fields from the given string.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_ascii_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Use the given allocator to allocate enough memory to hold @var{len} characters and return a new
+@struct{} instance referencing the memory.  If an error occurs: raise an exception by performing a
+non--local exit to @var{L}.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_ascii_realloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_ascii_t @var{S}, size_t @var{newlen})
+Use the given allocator to reallocate the memory referenced by @var{S} to a new size.  Return a new
+@struct{} instance referencing the reallocated memory.  If an error occurs: raise an exception by
+performing a non--local exit to @var{L}.
+@end deftypefun
+
+
+@deftypefun void ccmem_ascii_free (ccmem_allocator_t const * @var{A}, ccmem_ascii_t @var{S})
+Use the given allocator to release the memory referenced by @var{S}.
+@end deftypefun
+
+@c page
+@node ascii zero
+@section Zero terminated strings
+
+
+@deftp {Struct Typedef} ccmem_asciiz_t
+Type representing an @ascii{} coded, zero terminated, string in memory.  Usually instances of this
+type are passed around by value.  It has the following fields:
+
+@table @code
+@item size_t len
+Number of characters in the string, @strong{not} including the terminating zero.
+
+@item char * ptr
+Pointer to the first character in the string.
+@end table
+@end deftp
+
+
+@deftypefun ccmem_asciiz_t ccmem_new_asciiz (char * @var{ptr}, size_t @var{len})
+Build and return a new instance, initialised with the given operands.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_new_asciiz_null (void)
+Build and return a new instance, representing the empty string.  The pointer field is set to
+@cnull{}; the length field is set to zero.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_new_asciiz_from_str (char * @var{str})
+Build and return a new @struct{} instance, initialised with the given pointer to an @asciiz{}
+string.  The length of the string is determined with a call to @cfunc{strlen}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_asciiz_is_empty (ccmem_asciiz_t @var{S})
+Return @ctrue{} if the string is empty; otherwise return @cfalse{}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_asciiz_is_terminated (ccmem_asciiz_t @var{S})
+Return @ctrue{} if the string is actually terminated by a zero character; otherwise return
+@cfalse{}.
+@end deftypefun
+
+
+@deftypefun void ccmem_asciiz_clean_memory (ccmem_asciiz_t @var{S})
+Reset to zero all the characters in the string.
+@end deftypefun
+
+
+@deftypefun void ccmem_asciiz_terminate (ccmem_asciiz_t @var{S})
+Set to zero the character whose index is equal to the length of the string.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_from_block (ccmem_block_t @var{B})
+Build and return a new instance initialised with the fields of the given block.  This function
+assumes that the string in the block is @ascii{} coded and zero--terminated and the terminating zero
+is an octet counted by the block's length.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_from_asciiz (ccmem_asciiz_t @var{S})
+Build and return a new block initialised with the fields of the given string.  The length of the
+block includes the terminating zero.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Use the given allocator to allocate enough memory to hold @var{len} characters and the terminating
+zero, then return a new @struct{} instance referencing the memory.  If an error occurs: raise an
+exception by performing a non--local exit to @var{L}.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_realloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
+Use the given allocator to reallocate the memory referenced by @var{S} to a new size.  Return a new
+@struct{} instance referencing the reallocated memory.  If an error occurs: raise an exception by
+performing a non--local exit to @var{L}.
+@end deftypefun
+
+
+@deftypefun void ccmem_asciiz_free (ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S})
+Use the given allocator to release the memory referenced by @var{S}.
 @end deftypefun
 
 @c page

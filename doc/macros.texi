@@ -309,6 +309,10 @@
 @code{false}
 @end macro
 
+@macro struct{}
+@code{struct}
+@end macro
+
 @c ------------------------------------------------------------
 
 @macro objtype{NAME}

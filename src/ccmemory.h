@@ -356,6 +356,17 @@ typedef struct ccmem_block_t {
 
 /* ------------------------------------------------------------------ */
 
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline ccmem_block_t
+ccmem_new_block (uint8_t * ptr, size_t len)
+{
+  ccmem_block_t		B = {
+    .ptr = ptr,
+    .len = len
+  };
+  return B;
+}
+
 __attribute__((__always_inline__,__nonnull__(1,2)))
 static inline ccmem_block_t
 ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
@@ -457,6 +468,215 @@ ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, siz
 
 ccmem_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
   __attribute__((__const__));
+
+
+/** ------------------------------------------------------------
+ ** Memory handling: ASCII-coded, not zero-terminated strings.
+ ** ----------------------------------------------------------*/
+
+typedef struct ccmem_ascii_t		ccmem_ascii_t;
+
+struct ccmem_ascii_t {
+  size_t	len;
+  char *	ptr;
+};
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline ccmem_ascii_t
+ccmem_new_ascii (char * ptr, size_t len)
+{
+  ccmem_ascii_t		S = {
+    .ptr = ptr,
+    .len = len
+  };
+  return S;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_ascii_t
+ccmem_new_ascii_empty (void)
+{
+  ccmem_ascii_t		S = {
+    .ptr = NULL,
+    .len = 0
+  };
+  return S;
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline ccmem_ascii_t
+ccmem_new_ascii_from_str (char * str)
+{
+  return ccmem_new_ascii(str, strlen(str));
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_ascii_is_empty (ccmem_ascii_t S)
+{
+  return (NULL == S.ptr);
+}
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_ascii_clean_memory (ccmem_ascii_t S)
+{
+  memset(S.ptr, '\0', S.len);
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_ascii_t
+ccmem_ascii_from_block (ccmem_block_t B)
+{
+  return ccmem_new_ascii((char *)B.ptr, B.len);
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_block_t
+ccmem_block_from_ascii (ccmem_ascii_t S)
+{
+  return ccmem_new_block((uint8_t *)S.ptr, S.len);
+}
+
+/* ------------------------------------------------------------ */
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_ascii_t
+ccmem_ascii_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
+{
+  return ccmem_new_ascii(ccmem_malloc(L, A, len), len);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_ascii_t
+ccmem_ascii_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
+{
+  return ccmem_new_ascii(ccmem_realloc(L, A, S.ptr, newlen), newlen);
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline void
+ccmem_ascii_free (ccmem_allocator_t const * const A, ccmem_ascii_t S)
+{
+  if (S.ptr) {
+    ccmem_free(A, S.ptr);
+  }
+}
+
+
+/** ------------------------------------------------------------
+ ** Memory handling: ASCIIZ-coded, zero-terminated strings.
+ ** ----------------------------------------------------------*/
+
+typedef struct ccmem_asciiz_t		ccmem_asciiz_t;
+
+struct ccmem_asciiz_t {
+  size_t	len;
+  char *	ptr;
+};
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline ccmem_asciiz_t
+ccmem_new_asciiz (char * ptr, size_t len)
+{
+  ccmem_asciiz_t	S = {
+    .ptr = ptr,
+    .len = len
+  };
+  return S;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_asciiz_t
+ccmem_new_asciiz_null (void)
+{
+  ccmem_asciiz_t	S = {
+    .ptr = NULL,
+    .len = 0
+  };
+  return S;
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline ccmem_asciiz_t
+ccmem_new_asciiz_from_str (char * str)
+{
+  return ccmem_new_asciiz(str, strlen(str));
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_asciiz_is_empty (ccmem_asciiz_t S)
+{
+  return (NULL == S.ptr);
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_asciiz_is_terminated (ccmem_asciiz_t S)
+{
+  return ('\0' == S.ptr[S.len]);
+}
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_asciiz_clean_memory (ccmem_asciiz_t S)
+{
+  memset(S.ptr, '\0', S.len);
+  S.ptr[S.len] = '\0';
+}
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_asciiz_terminate (ccmem_asciiz_t S)
+{
+  S.ptr[S.len] = '\0';
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_asciiz_t
+ccmem_asciiz_from_block (ccmem_block_t B)
+/* We assume  that the string  in the  block is zero-terminated  and the
+   terminating zero is an octet counted by the block's length. */
+{
+  return ccmem_new_asciiz((char *)B.ptr, B.len - 1);
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_block_t
+ccmem_block_from_asciiz (ccmem_asciiz_t S)
+{
+  return ccmem_new_block((uint8_t *)S.ptr, 1 + S.len);
+}
+
+/* ------------------------------------------------------------ */
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
+{
+  ccmem_asciiz_t	S = ccmem_new_asciiz(ccmem_malloc(L, A, len+1), len);
+  ccmem_asciiz_terminate(S);
+  return S;
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)
+{
+  ccmem_asciiz_t	R = ccmem_new_asciiz(ccmem_realloc(L, A, S.ptr, newlen+1), newlen);
+  ccmem_asciiz_terminate(R);
+  return R;
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline void
+ccmem_asciiz_free (ccmem_allocator_t const * const A, ccmem_asciiz_t S)
+{
+  if (S.ptr) {
+    ccmem_free(A, S.ptr);
+  }
+}
 
 
 /** --------------------------------------------------------------------
