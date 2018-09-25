@@ -3,10 +3,10 @@
 			News file for CCMemory
 			======================
 
-Revision 0.2.0-devel.2
+Revision 0.2.1-devel.0
 ----------------------
 
-* ...
+* Added exception handlers and guarded memory allocators.
 
 
 Revision 0.2.0-devel.1

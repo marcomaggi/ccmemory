@@ -24,7 +24,7 @@ doc_ccmemory_TEXINFOS	= \
 	doc/lgpl-3.0.texi	\
 	doc/fdl-1.3.texi
 
-#page
+
 #### libraries
 
 ccmemory_CURRENT	= @ccmemory_VERSION_INTERFACE_CURRENT@
@@ -42,14 +42,16 @@ libccmemory_la_SOURCES	= \
 	src/ccmemory-internals.h		\
 	src/ccmemory-version.c			\
 	src/ccmemory-standard-allocator.c	\
+	src/ccmemory-exception-handlers.c	\
 	src/ccmemory-blocks.c
 
-#page
+
 #### tests
 
 check_PROGRAMS	= \
 	tests/version			\
 	tests/standard-allocator	\
+	tests/exception-handlers	\
 	tests/memory-blocks
 
 if CCSEMVER_TESTING_ENABLED
@@ -65,6 +67,9 @@ tests_version_LDADD			= $(ccmemory_tests_ldadd)
 tests_standard_allocator_CPPFLAGS	= $(ccmemory_tests_cppflags)
 tests_standard_allocator_LDADD		= $(ccmemory_tests_ldadd)
 
+tests_exception_handlers_CPPFLAGS	= $(ccmemory_tests_cppflags)
+tests_exception_handlers_LDADD		= $(ccmemory_tests_ldadd)
+
 tests_memory_blocks_CPPFLAGS		= $(ccmemory_tests_cppflags)
 tests_memory_blocks_LDADD		= $(ccmemory_tests_ldadd)
 
@@ -73,7 +78,7 @@ tests_memory_blocks_LDADD		= $(ccmemory_tests_ldadd)
 installcheck-local: $(TESTS)
 	@for f in $(TESTS); do $(builddir)/$$f; done
 
-#page
+
 #### testing under GDB
 
 $(builddir)/.gdbinit:
@@ -88,7 +93,7 @@ $(builddir)/.gdbinit:
 gdb-test: $(builddir)/.gdbinit
 	libtool --mode=execute gdb $$FILE
 
-#page
+
 #### Coverity support
 #
 # We can visit the project site at:
@@ -141,7 +146,7 @@ coverity-upload:
 	     --form description="A build description" \
 	     'https://scan.coverity.com/builds?project=marcomaggi%2Fccmemory'
 
-#page
+
 #### Static analysis with Clang's Static Analyzer
 #
 # See the documentation for the command line tool at:

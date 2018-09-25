@@ -130,6 +130,7 @@ included in the section entitled ``@gnu{} Free Documentation License''.
 * version::                     Version functions.
 * allocators::                  The generic allocators @api{}.
 * std::                         The standard allocator.
+* handlers::                    Exception handlers.
 * blocks::                      Blocks of memory.
 * utils::                       Utility definitions.
 
@@ -396,6 +397,352 @@ returns @cnull{}.
 @deftypefun void ccmem_std_free (void * @var{ptr})
 Release memory in a way similar to the standard @cfunc{free}, using the standard allocator.
 @end deftypefun
+
+@c page
+@node handlers
+@chapter Exception handlers
+
+
+Using the facilities of the library CCExceptions, it is possible to automatically release allocated
+memory when exiting a location.
+
+
+@deftp {Struct Typedef} ccmem_clean_handler_t
+Type of clean exception handler that can release memory managed by a generic allocator.
+@end deftp
+
+
+@deftp {Struct Typedef} ccmem_error_handler_t
+Type of error exception handler that can release memory managed by a generic allocator.
+@end deftp
+
+@menu
+* handlers generic::            Exception handlers for generic allocators.
+* handlers standard::           Exception handlers for the standard allocator.
+@end menu
+
+@c page
+@node handlers generic
+@section Exception handlers for generic allocators
+
+
+@menu
+* handlers generic malloc::     Guarded @cfunc{malloc} with generic allocators.
+* handlers generic calloc::     Guarded @cfunc{calloc} with generic allocators.
+* handlers generic realloc::    Guarded @cfunc{realloc} with generic allocators.
+@end menu
+
+@c page
+@node handlers generic malloc
+@subsection Guarded @cfunc{malloc} with generic allocators
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_malloc_guarded(L, P_H,
+                    ccmem_standard_allocator, 4096);
+
+  memset(P, 0, 4096);
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_malloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{size})
+Wrapper for @cfunc{ccmem_malloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_malloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{size})
+Wrapper for @cfunc{ccmem_malloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_malloc_guarded (cce_destination_t @var{L}, @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{size})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_malloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_malloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node handlers generic calloc
+@subsection Guarded @cfunc{calloc} with generic allocators
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_calloc_guarded(L, P_H,
+                    ccmem_standard_allocator, 16, 4096);
+
+  memset(P, 0, 16 * 4096);
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_calloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{count}, size_t @var{eltsize})
+Wrapper for @cfunc{ccmem_calloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_calloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{count}, size_t @var{eltsize})
+Wrapper for @cfunc{ccmem_calloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_calloc_guarded (cce_destination_t @var{L}, @var{P_H}, ccmem_allocator_t const * @var{A}, size_t @var{count}, size_t @var{eltsize})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_calloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_calloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node handlers generic realloc
+@subsection Guarded @cfunc{realloc} with generic allocators
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_malloc_guarded(L, P_H,
+                    ccmem_standard_allocator, 4096);
+
+  memset(P, 0, 4096);
+  @{
+    void *    Q = ccmem_realloc_guarded(L, P_H,
+                    ccmem_standard_allocator, P, 2 * 4096);
+
+    memset(Q, 0, 2 * 4096);
+  @}
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_realloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, void * @var{P}, size_t @var{newsize})
+Wrapper for @cfunc{ccmem_realloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.  Such handler must be the @strong{same one} used in a previous call to
+@cfunc{ccmem_malloc_guarded_clean}, @cfunc{ccmem_calloc_guarded_clean} or
+@cfunc{ccmem_realloc_guarded_clean}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_realloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, ccmem_allocator_t const * @var{A}, void * @var{P}, size_t @var{newsize})
+Wrapper for @cfunc{ccmem_realloc} that registers the allocated memory to be released by the handler
+referenced by @var{P_H}.  Such handler must be the @strong{same one} used in a previous call to
+@cfunc{ccmem_malloc_guarded_clean}, @cfunc{ccmem_calloc_guarded_clean} or
+@cfunc{ccmem_realloc_guarded_clean}.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_realloc_guarded (cce_destination_t @var{L}, @var{P_H}, ccmem_allocator_t const * @var{A}, void * @var{P}, size_t @var{newsize})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_realloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_realloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node handlers standard
+@section Exception handlers for the standard allocator
+
+
+@menu
+* handlers standard malloc::    Guarded @cfunc{malloc} with the
+                                standard allocator.
+* handlers standard calloc::    Guarded @cfunc{calloc} with the
+                                standard allocator.
+* handlers standard realloc::   Guarded @cfunc{realloc} with the
+                                standard allocator.
+@end menu
+
+@c page
+@node handlers standard malloc
+@subsection Guarded @cfunc{malloc} with the standard allocator
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_std_malloc_guarded(L, P_H, 4096);
+
+  memset(P, 0, 4096);
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_std_malloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, size_t @var{size})
+Wrapper for @cfunc{ccmem_malloc_guarded_clean} that registers the allocated memory to be released by
+the handler referenced by @var{P_H}, using the standard allocator.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_std_malloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, size_t @var{size})
+Wrapper for @cfunc{ccmem_malloc_guarded_error} that registers the allocated memory to be released by
+the handler referenced by @var{P_H}, using the standard allocator.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_std_malloc_guarded (cce_destination_t @var{L}, @var{P_H}, size_t @var{size})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_malloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_malloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node handlers standard calloc
+@subsection Guarded @cfunc{calloc} with the standard allocator
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_std_calloc_guarded(L, P_H, 16, 4096);
+
+  memset(P, 0, 16 * 4096);
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_std_calloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, size_t @var{count}, size_t @var{eltsize})
+Wrapper for @cfunc{ccmem_calloc_guarded_clean} that registers the allocated memory to be released by
+the handler referenced by @var{P_H}, using the standard allocator.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_std_calloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, size_t @var{count}, size_t @var{eltsize})
+Wrapper for @cfunc{ccmem_calloc_guarded_error} that registers the allocated memory to be released by
+the handler referenced by @var{P_H}, using the standard allocator.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_std_calloc_guarded (cce_destination_t @var{L}, @var{P_H}, size_t @var{count}, size_t @var{eltsize})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_calloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_calloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node handlers standard realloc
+@subsection Guarded @cfunc{realloc} with the standard allocator
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t P_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  void *      P = ccmem_std_malloc_guarded(L, P_H, 4096);
+
+  memset(P, 0, 4096);
+  @{
+    void *    Q = ccmem_std_realloc_guarded(L, P_H, P, 2 * 4096);
+
+    memset(Q, 0, 2 * 4096);
+  @}
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun {void *} ccmem_std_realloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{P_H}, void * @var{P}, size_t @var{newsize})
+Wrapper for @cfunc{ccmem_realloc_guarded_clean} that registers the allocated memory to be released
+by the handler referenced by @var{P_H}, using the standard allocator.  Such handler must be the
+@strong{same one} used in a previous call to @cfunc{ccmem_std_malloc_guarded_clean},
+@cfunc{ccmem_std_calloc_guarded_clean} or @cfunc{ccmem_std_realloc_guarded_clean}.
+@end deftypefun
+
+
+@deftypefun {void *} ccmem_std_realloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{P_H}, void * @var{P}, size_t @var{newsize})
+Wrapper for @cfunc{ccmem_realloc_guarded_error} that registers the allocated memory to be released
+by the handler referenced by @var{P_H}, using the standard allocator.  Such handler must be the
+@strong{same one} used in a previous call to @cfunc{ccmem_std_malloc_guarded_clean} or
+@cfunc{ccmem_std_calloc_guarded_clean} or @cfunc{ccmem_std_realloc_guarded_clean}.
+@end deftypefun
+
+
+@deftypefn {Preprocessor Macro} {void *} ccmem_std_realloc_guarded (cce_destination_t @var{L}, @var{P_H}, void * @var{P}, size_t @var{newsize})
+If the argument @var{P_H} is a pointer of type:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_realloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_std_realloc_guarded_error}.
+@end table
+@end deftypefn
 
 @c page
 @node blocks

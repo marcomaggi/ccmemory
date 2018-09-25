@@ -2,7 +2,7 @@ dnl @configure_input@
 dnl
 
 AC_PREREQ([2.69])
-AC_INIT([CCMemory],[0.2.0-devel.2],
+AC_INIT([CCMemory],[0.2.1-devel.0],
   [marco.maggi-ipsu@poste.it],
   [ccmemory],[http://marcomaggi.github.com/ccmemory])
 dnl This is the revision number of this configure.ac
@@ -46,9 +46,9 @@ dnl page
 MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],2,0,0)
 
 dnl This is the version stored in the pkg-config data file.
-AC_SUBST([CCMEMORY_PKG_CONFIG_VERSION],[0.2.0])
+AC_SUBST([CCMEMORY_PKG_CONFIG_VERSION],[0.2.1])
 
-AS_VAR_SET([SLACKSTUFF_PACKAGE_VERSION],[0.2d0.2])
+AS_VAR_SET([SLACKSTUFF_PACKAGE_VERSION],[0.2d1.0])
 AC_SUBST([SLACKSTUFF_PACKAGE_VERSION])
 
 dnl page

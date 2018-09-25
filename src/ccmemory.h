@@ -130,10 +130,10 @@ ccmem_decl void ccmem_library_init (void)
 typedef struct ccmem_allocator_t		ccmem_allocator_t;
 typedef struct ccmem_allocator_methods_t	ccmem_allocator_methods_t;
 
-typedef void * ccmem_malloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t size);
-typedef void * ccmem_realloc_fun_t (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize);
-typedef void * ccmem_calloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize);
-typedef void   ccmem_free_fun_t                         (ccmem_allocator_t const * const A, void * ptr);
+typedef void * ccmem_malloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * A, size_t size);
+typedef void * ccmem_realloc_fun_t (cce_destination_t L, ccmem_allocator_t const * A, void * ptr, size_t newsize);
+typedef void * ccmem_calloc_fun_t  (cce_destination_t L, ccmem_allocator_t const * A, size_t count, size_t eltsize);
+typedef void   ccmem_free_fun_t                         (ccmem_allocator_t const * A, void * ptr);
 
 struct ccmem_allocator_methods_t {
   ccmem_malloc_fun_t  * const	malloc;
@@ -150,28 +150,28 @@ struct ccmem_allocator_t {
 
 __attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
 static inline void *
-ccmem_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t size)
+ccmem_malloc (cce_destination_t L, ccmem_allocator_t const * A, size_t size)
 {
   return A->methods->malloc(L, A, size);
 }
 
 __attribute__((__always_inline__,__nonnull__(1,2,3),__returns_nonnull__))
 static inline void *
-ccmem_realloc (cce_destination_t L, ccmem_allocator_t const * const A, void * ptr, size_t newsize)
+ccmem_realloc (cce_destination_t L, ccmem_allocator_t const * A, void * ptr, size_t newsize)
 {
   return A->methods->realloc(L, A, ptr, newsize);
 }
 
 __attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
 static inline void *
-ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t count, size_t eltsize)
+ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * A, size_t count, size_t eltsize)
 {
   return A->methods->calloc(L, A, count, eltsize);
 }
 
 __attribute__((__always_inline__,__nonnull__(1,2)))
 static inline void
-ccmem_free (ccmem_allocator_t const * const A, void * ptr)
+ccmem_free (ccmem_allocator_t const * A, void * ptr)
 {
   A->methods->free(A, ptr);
 }
@@ -212,6 +212,137 @@ ccmem_std_free (void * ptr)
 {
   ccmem_standard_allocator->methods->free(ccmem_standard_allocator, ptr);
 }
+
+
+/** --------------------------------------------------------------------
+ ** Memory allocator: exception handlers.
+ ** ----------------------------------------------------------------- */
+
+typedef struct ccmem_clean_handler_t	ccmem_clean_handler_t;
+typedef struct ccmem_error_handler_t	ccmem_error_handler_t;
+
+struct ccmem_clean_handler_t {
+  cce_clean_handler_t		handler;
+  ccmem_allocator_t const *	allocator;
+};
+
+struct ccmem_error_handler_t {
+  cce_error_handler_t		handler;
+  ccmem_allocator_t const *	allocator;
+};
+
+/* ------------------------------------------------------------------ */
+
+ccmem_decl void * ccmem_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+					      ccmem_allocator_t const * A, size_t size)
+  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+
+ccmem_decl void * ccmem_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+					      ccmem_allocator_t const * A, size_t size)
+  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+
+#define ccmem_malloc_guarded(L,P_H,A,size) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_malloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_malloc_guarded_error)(L,P_H,A,size)
+
+/* ------------------------------------------------------------------ */
+
+ccmem_decl void * ccmem_calloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+					      ccmem_allocator_t const * A, size_t count, size_t eltsize)
+  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+
+ccmem_decl void * ccmem_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+					      ccmem_allocator_t const * A, size_t count, size_t eltsize)
+  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+
+#define ccmem_calloc_guarded(L,P_H,A,count,eltsize) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_calloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_calloc_guarded_error)(L,P_H,A,count,eltsize)
+
+/* ------------------------------------------------------------------ */
+
+ccmem_decl void * ccmem_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+					       ccmem_allocator_t const * A, void * P, size_t newsize)
+  __attribute__((__nonnull__(1,2,3,4),__returns_nonnull__));
+
+ccmem_decl void * ccmem_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+					       ccmem_allocator_t const * A, void * P, size_t newsize)
+  __attribute__((__nonnull__(1,2,3,4),__returns_nonnull__));
+
+#define ccmem_realloc_guarded(L,P_H,A,P,newsize) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_realloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_realloc_guarded_error)(L,P_H,A,P,newsize)
+
+
+/** --------------------------------------------------------------------
+ ** Standard memory allocator: exception handlers.
+ ** ----------------------------------------------------------------- */
+
+__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, size_t size)
+{
+  return ccmem_malloc_guarded(L, P_H, ccmem_standard_allocator, size);
+}
+
+__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, size_t size)
+{
+  return ccmem_malloc_guarded(L, P_H, ccmem_standard_allocator, size);
+}
+
+#define ccmem_std_malloc_guarded(L,P_H,size) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_std_malloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_std_malloc_guarded_error)(L,P_H,size)
+
+/* ------------------------------------------------------------------ */
+
+__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_calloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, size_t count, size_t eltsize)
+{
+  return ccmem_calloc_guarded(L, P_H, ccmem_standard_allocator, count, eltsize);
+}
+
+__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, size_t count, size_t eltsize)
+{
+  return ccmem_calloc_guarded(L, P_H, ccmem_standard_allocator, count, eltsize);
+}
+
+#define ccmem_std_calloc_guarded(L,P_H,count,eltsize) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_std_calloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_std_calloc_guarded_error)(L,P_H,count,eltsize)
+
+/* ------------------------------------------------------------------ */
+
+__attribute__((__nonnull__(1,2,3),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, void * P, size_t newsize)
+{
+  return ccmem_realloc_guarded(L, P_H, ccmem_standard_allocator, P, newsize);
+}
+
+__attribute__((__nonnull__(1,2,3),__returns_nonnull__,__always_inline__))
+static inline void *
+ccmem_std_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, void * P, size_t newsize)
+{
+  return ccmem_realloc_guarded(L, P_H, ccmem_standard_allocator, P, newsize);
+}
+
+#define ccmem_std_realloc_guarded(L,P_H,P,newsize) \
+  _Generic((P_H),	\
+	   ccmem_clean_handler_t	*: ccmem_std_realloc_guarded_clean, \
+	   ccmem_error_handler_t	*: ccmem_std_realloc_guarded_error)(L,P_H,P,newsize)
+
+
 
 
 /** --------------------------------------------------------------------
