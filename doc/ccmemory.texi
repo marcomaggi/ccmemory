@@ -307,7 +307,7 @@ location @var{L}.  Functions of this type never return @cnull{}.
 @end deftypefun
 
 
-@deftypefun void * ccmem_realloc_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr}, size_t @var{newsize})
+@deftypefun {void *} ccmem_realloc_fun_t (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, void * @var{ptr}, size_t @var{newsize})
 Type of function that reallocates memory in a way similar to the standard @cfunc{realloc}.  The
 function uses the allocator @var{A}.  Only memory blocks allocated by @var{A} can be reallocated by
 this function.  If an error occurs: an exception is raised by jumping to the location @var{L}.
@@ -315,7 +315,7 @@ Functions of this type never return @cnull{}.
 @end deftypefun
 
 
-@deftypefun void * ccmem_calloc_fun_t  (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{count}, size_t @var{eltsize})
+@deftypefun {void *} ccmem_calloc_fun_t  (cce_destination_t @var{L}, ccmem_allocator_t const * const @var{A}, size_t @var{count}, size_t @var{eltsize})
 Type of function that allocates memory in a way similar to the standard @cfunc{calloc}.  The
 function uses the allocator @var{A}.  If an error occurs: an exception is raised by jumping to the
 location @var{L}.  Functions of this type never return @cnull{}.
