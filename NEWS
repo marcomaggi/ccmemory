@@ -3,6 +3,12 @@
 			News file for CCMemory
 			======================
 
+Revision 0.2.1-devel.1
+----------------------
+
+* Development of ASCII and ASCIIZ string representations.
+
+
 Revision 0.2.1-devel.0
 ----------------------
 
