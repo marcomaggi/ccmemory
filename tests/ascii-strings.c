@@ -169,43 +169,43 @@ test_2_2_3 (cce_destination_t L)
 
 void
 test_3_1_1 (cce_destination_t L)
-/* Test for "ccmem_ascii_compar()". */
+/* Test for "ccmem_ascii_equal()". */
 {
   static char *		str = "ciao";
   size_t 		len = strlen(str);
   ccmem_ascii_t		S1  = ccmem_new_ascii(str, len);
   ccmem_ascii_t		S2  = ccmem_new_ascii(str, len);
 
-  cctests_assert(L, ccmem_ascii_compar(S1, S2));
+  cctests_assert(L, ccmem_ascii_equal(S1, S2));
 }
 
 void
 test_3_1_2 (cce_destination_t L)
-/* Test for "ccmem_ascii_compar()". */
+/* Test for "ccmem_ascii_equal()". */
 {
   static char *		str = "ciao";
   size_t 		len = strlen(str);
   ccmem_ascii_t		S1  = ccmem_new_ascii(str, len);
   ccmem_ascii_t		S2  = ccmem_new_ascii(str, len-1);
 
-  cctests_assert(L, ! ccmem_ascii_compar(S1, S2));
+  cctests_assert(L, ! ccmem_ascii_equal(S1, S2));
 }
 
 void
 test_3_1_3 (cce_destination_t L)
-/* Test for "ccmem_ascii_compar()". */
+/* Test for "ccmem_ascii_equal()". */
 {
   static char *		str = "ciao";
   size_t 		len = strlen(str);
   ccmem_ascii_t		S1  = ccmem_new_ascii(str, len-1);
   ccmem_ascii_t		S2  = ccmem_new_ascii(str, len);
 
-  cctests_assert(L, ! ccmem_ascii_compar(S1, S2));
+  cctests_assert(L, ! ccmem_ascii_equal(S1, S2));
 }
 
 void
 test_3_1_4 (cce_destination_t L)
-/* Test for "ccmem_ascii_compar()". */
+/* Test for "ccmem_ascii_equal()". */
 {
   static char *		str1 = "ciao";
   static char *		str2 = "hey!";
@@ -214,7 +214,7 @@ test_3_1_4 (cce_destination_t L)
   ccmem_ascii_t		S1  = ccmem_new_ascii(str1, len1);
   ccmem_ascii_t		S2  = ccmem_new_ascii(str2, len2);
 
-  cctests_assert(L, ! ccmem_ascii_compar(S1, S2));
+  cctests_assert(L, ! ccmem_ascii_equal(S1, S2));
 }
 
 
@@ -266,7 +266,7 @@ test_5_1_1 (cce_destination_t upper_L)
 
 void
 test_5_2_1 (cce_destination_t upper_L)
-/* Test for "ccmem_ascii_remalloc()". */
+/* Test for "ccmem_ascii_realloc()". */
 {
   cce_location_t	L[1];
 
@@ -296,6 +296,69 @@ test_5_2_1 (cce_destination_t upper_L)
     cctests_assert_ascii(L, "ciao mamma", S.ptr, S.len);
 
     ccmem_ascii_free(ccmem_standard_allocator, S);
+    cce_run_body_handlers(L);
+  }
+}
+
+
+/** --------------------------------------------------------------------
+ ** Guarded memory allocation.
+ ** ----------------------------------------------------------------- */
+
+void
+test_6_1_1 (cce_destination_t upper_L)
+/* Test for "ccmem_ascii_malloc_guardeda()". */
+{
+  cce_location_t	L[1];
+  ccmem_clean_handler_t	S_H[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_ascii_t	S = ccmem_ascii_malloc_guarded(L, S_H, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", S.ptr, S.len);
+    cce_run_body_handlers(L);
+  }
+}
+
+void
+test_6_2_1 (cce_destination_t upper_L)
+/* Test for "ccmem_ascii_realloc_guarded()". */
+{
+  cce_location_t	L[1];
+  ccmem_clean_handler_t	S_H[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_ascii_t	S = ccmem_ascii_malloc_guarded(L, S_H, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", S.ptr, S.len);
+
+    S = ccmem_ascii_realloc_guarded(L, S_H, ccmem_standard_allocator, S, 4+6);
+
+    S.ptr[4] = ' ';
+    S.ptr[5] = 'm';
+    S.ptr[6] = 'a';
+    S.ptr[7] = 'm';
+    S.ptr[8] = 'm';
+    S.ptr[9] = 'a';
+
+    cctests_assert_equal_size(L, 4+6, S.len);
+    cctests_assert_ascii(L, "ciao mamma", S.ptr, S.len);
     cce_run_body_handlers(L);
   }
 }
@@ -345,6 +408,12 @@ main (void)
     {
       cctests_run(test_5_1_1);
       cctests_run(test_5_2_1);
+    }
+
+    cctests_begin_group("guarded memory allocation");
+    {
+      cctests_run(test_6_1_1);
+      cctests_run(test_6_2_1);
     }
     cctests_end_group();
   }

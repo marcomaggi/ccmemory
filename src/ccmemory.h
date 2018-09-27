@@ -569,7 +569,7 @@ ccmem_ascii_is_null (ccmem_ascii_t const S)
 
 __attribute__((__always_inline__))
 static inline bool
-ccmem_ascii_compar (ccmem_ascii_t const S1, ccmem_ascii_t const S2)
+ccmem_ascii_equal (ccmem_ascii_t const S1, ccmem_ascii_t const S2)
 {
   return ((S1.len == S2.len) && (0 == strncmp(S1.ptr, S2.ptr, S1.len)))? true : false;
 }
@@ -605,10 +605,53 @@ __attribute__((__always_inline__,__nonnull__(1)))
 static inline void
 ccmem_ascii_free (ccmem_allocator_t const * const A, ccmem_ascii_t S)
 {
-  if (S.ptr) {
-    ccmem_free(A, S.ptr);
-  }
+  ccmem_free(A, S.ptr);
 }
+
+/* ------------------------------------------------------------ */
+/* guarded memory allocation */
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_ascii_t
+ccmem_ascii_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				  ccmem_allocator_t const * const A, size_t len)
+{
+  return ccmem_new_ascii(ccmem_malloc_guarded(L, S_H, A, len), len);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_ascii_t
+ccmem_ascii_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				  ccmem_allocator_t const * const A, size_t len)
+{
+  return ccmem_new_ascii(ccmem_malloc_guarded(L, S_H, A, len), len);
+}
+
+#define ccmem_ascii_malloc_guarded(L, S_H, A, len) \
+  _Generic((S_H), \
+	   ccmem_clean_handler_t *:	ccmem_ascii_malloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_ascii_malloc_guarded_error)(L, S_H, A, len)
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_ascii_t
+ccmem_ascii_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				   ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
+{
+  return ccmem_new_ascii(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_ascii_t
+ccmem_ascii_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				   ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
+{
+  return ccmem_new_ascii(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
+}
+
+#define ccmem_ascii_realloc_guarded(L, S_H, A, S, newlen) \
+  _Generic((S_H), \
+	   ccmem_clean_handler_t *:	ccmem_ascii_realloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_ascii_realloc_guarded_error)(L, S_H, A, S, newlen)
 
 
 /** ------------------------------------------------------------
