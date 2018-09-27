@@ -1214,7 +1214,7 @@ in a previous call to the allocation function.
 
 
 @deftypefn ccmem_ascii_t ccmem_ascii_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_ascii_t @var{S}, size_t @var{newlen})
-Preprocessor macro that builds and returns a new @ascii{} stringrepresenting the reallocation of
+Preprocessor macro that builds and returns a new @ascii{} string representing the reallocation of
 @var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
 allocation function.  If the argument @var{S_H} is a pointer to:
 
@@ -1233,8 +1233,8 @@ The macro use expands into a call to @cfunc{ccmem_ascii_realloc_guarded_error}.
 
 
 @deftp {Struct Typedef} ccmem_asciiz_t
-Type representing an @ascii{} coded, zero terminated, string in memory.  Usually instances of this
-type are passed around by value.  It has the following fields:
+Type representing an @ascii{} coded, zero terminated, string in memory; an @asciiz{} string.
+Usually instances of this type are passed around by value.  It has the following fields:
 
 @table @code
 @item size_t len
@@ -1245,33 +1245,88 @@ Pointer to the first character in the string.
 @end table
 @end deftp
 
+@menu
+* ascii zero constructors::     Constructors for @ascii{} strings.
+* ascii zero predicates::       Predicates for @ascii{} strings.
+* ascii zero comparison::       Comparison between @ascii{} strings.
+* ascii zero operations::       Operations on @ascii{} strings.
+* ascii zero dynamic::          Dynamic memory allocation for
+                                @ascii{} strings.
+* ascii zero guarded::          Guarded memory allocation for @ascii{}
+                                strings.
+@end menu
 
-@deftypefun ccmem_asciiz_t ccmem_new_asciiz (char * @var{ptr}, size_t @var{len})
-Build and return a new instance, initialised with the given operands.
+@c page
+@node ascii zero constructors
+@subsection Constructors for @ascii{} strings
+
+
+@deftypefun ccmem_asciiz_t ccmem_new_ascii (char * @var{ptr}, size_t @var{len})
+Build and return a new instance, initialised with the given operands.  @var{len} must not include
+the terminating zero.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_new_asciiz_empty (void)
+Build and return a new instance, representing an empty string.  The pointer field references a
+statically allocated, zero terminated, empty string; the length field is set to zero.
 @end deftypefun
 
 
 @deftypefun ccmem_asciiz_t ccmem_new_asciiz_null (void)
-Build and return a new instance, representing the empty string.  The pointer field is set to
-@cnull{}; the length field is set to zero.
+Build and return a new instance: the pointer field is set to @cnull{}; the length field is set to
+zero.
 @end deftypefun
 
 
 @deftypefun ccmem_asciiz_t ccmem_new_asciiz_from_str (char * @var{str})
-Build and return a new @struct{} instance, initialised with the given pointer to an @asciiz{}
-string.  The length of the string is determined with a call to @cfunc{strlen}.
+Build and return a new instance, initialised with the given pointer to an @asciiz{} string.  The
+length of the string is determined with a call to @cfunc{strlen}.
 @end deftypefun
 
 
-@deftypefun bool ccmem_asciiz_is_empty (ccmem_asciiz_t @var{S})
-Return @ctrue{} if the string is empty; otherwise return @cfalse{}.
+@deftypefun ccmem_asciiz_t ccmem_new_asciiz_from_block (ccmem_block_t @var{B})
+Build and return a new instance initialised with the fields from the given block.  The block is
+supposed to hold a valid @asciiz{} string, with no zero characters inside.  This function assumes
+that the string in the block is zero--terminated and the terminating zero is an octet counted by the
+block's length.
+@end deftypefun
+
+@c page
+@node ascii zero predicates
+@subsection Predicates for @ascii{} strings
+
+
+@deftypefun bool ccmem_asciiz_is_empty (ccmem_asciiz_t const @var{S})
+Return @ctrue{} if the string is empty, that is: the string length is zero, the string pointer is
+non--@cnull{}, the string is zero terminated; otherwise return @cfalse{}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_asciiz_is_null (ccmem_asciiz_t const @var{S})
+Return @ctrue{} if the string is null, that is: the string length is zero, the string pointer is
+@cnull{}; otherwise return @cfalse{}.
 @end deftypefun
 
 
 @deftypefun bool ccmem_asciiz_is_terminated (ccmem_asciiz_t @var{S})
-Return @ctrue{} if the string is actually terminated by a zero character; otherwise return
+Return @ctrue{} if the string pointer is not @cnull{} and the string is zero terminated; otherwise
+return @cfalse{}.
+@end deftypefun
+
+@c page
+@node ascii zero comparison
+@subsection Comparison between @ascii{} strings
+
+
+@deftypefun bool ccmem_asciiz_equal (ccmem_asciiz_t const @vari{S}, ccmem_asciiz_t const @varii{S})
+Return @ctrue{} if the strings have the same length and the same contents; otherwise return
 @cfalse{}.
 @end deftypefun
+
+@c page
+@node ascii zero operations
+@subsection Operations on @ascii{} strings
 
 
 @deftypefun void ccmem_asciiz_clean_memory (ccmem_asciiz_t @var{S})
@@ -1280,40 +1335,143 @@ Reset to zero all the characters in the string.
 
 
 @deftypefun void ccmem_asciiz_terminate (ccmem_asciiz_t @var{S})
-Set to zero the character whose index is equal to the length of the string.
+Set to zero the octet after the last character in the string, making sure that the string is zero
+terminated.
 @end deftypefun
 
-
-@deftypefun ccmem_asciiz_t ccmem_asciiz_from_block (ccmem_block_t @var{B})
-Build and return a new instance initialised with the fields of the given block.  This function
-assumes that the string in the block is @ascii{} coded and zero--terminated and the terminating zero
-is an octet counted by the block's length.
-@end deftypefun
-
-
-@deftypefun ccmem_block_t ccmem_block_from_asciiz (ccmem_asciiz_t @var{S})
-Build and return a new block initialised with the fields of the given string.  The length of the
-block includes the terminating zero.
-@end deftypefun
+@c page
+@node ascii zero dynamic
+@subsection Dynamic memory allocation for @ascii{} strings
 
 
 @deftypefun ccmem_asciiz_t ccmem_asciiz_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-Use the given allocator to allocate enough memory to hold @var{len} characters and the terminating
-zero, then return a new @struct{} instance referencing the memory.  If an error occurs: raise an
-exception by performing a non--local exit to @var{L}.
+Use the given allocator to allocate enough memory to hold @var{len} characters, plus the terminating
+zero, and return a new instance referencing the memory.  If an error occurs: raise an exception by
+performing a non--local exit to @var{L}.  Make sure that the returned string is zero terminated.
 @end deftypefun
 
 
 @deftypefun ccmem_asciiz_t ccmem_asciiz_realloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
-Use the given allocator to reallocate the memory referenced by @var{S} to a new size.  Return a new
-@struct{} instance referencing the reallocated memory.  If an error occurs: raise an exception by
-performing a non--local exit to @var{L}.
+Use the given allocator to reallocate the memory referenced by @var{S} to a new size; @var{newlen}
+is meant @strong{not} to include the terminating zero.  Return a new instance referencing the
+reallocated memory.  If an error occurs: raise an exception by performing a non--local exit to
+@var{L}.  Make sure that the returned string is zero terminated.
 @end deftypefun
 
 
 @deftypefun void ccmem_asciiz_free (ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S})
 Use the given allocator to release the memory referenced by @var{S}.
 @end deftypefun
+
+@c page
+@node ascii zero guarded
+@subsection Guarded memory allocation for @ascii{} strings
+
+
+@menu
+* ascii zero guarded malloc::   Guarding memory allocated with @code{malloc}.
+* ascii zero guarded realloc::  Guarding memory allocated with @code{realloc}.
+@end menu
+
+@c page
+@node ascii zero guarded malloc
+@subsubsection Guarding memory allocated with @code{malloc}
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t S_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  ccmem_asciiz_t  S = ccmem_asciiz_malloc_guarded(L, S_H,
+                       ccmem_standard_allocator, 4);
+
+  ...
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_malloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Adapter for @cfunc{ccmem_malloc_guarded_clean} that builds and returns a new @ascii{} string.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_malloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Adapter for @cfunc{ccmem_malloc_guarded_error} that builds and returns a new @ascii{} string.
+@end deftypefun
+
+
+@deftypefn ccmem_asciiz_t ccmem_asciiz_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Preprocessor macro that builds and returns a new @ascii{} string.  If the argument @var{S_H} is a
+pointer to:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_asciiz_malloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_asciiz_malloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node ascii zero guarded realloc
+@subsubsection Guarding memory allocated with @code{realloc}
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t S_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  ccmem_asciiz_t  S = ccmem_asciiz_malloc_guarded(L, S_H,
+                       ccmem_standard_allocator, 256);
+
+  ...
+  S = ccmem_asciiz_realloc_guarded(L, S_H,
+        ccmem_standard_allocator, S, 512);
+  ...
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_realloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
+Adapter for @cfunc{ccmem_realloc_guarded_clean} that builds and returns a new @asciiz{} string
+representing the reallocation of @var{S}.  The given handler must be @strong{the same} handler used
+in a previous call to the allocation function.
+@end deftypefun
+
+
+@deftypefun ccmem_asciiz_t ccmem_asciiz_realloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
+Adapter for @cfunc{ccmem_realloc_guarded_error} that builds and returns a new @asciiz{} string
+representing the reallocation of @var{S}.  The given handler must be @strong{the same} handler used
+in a previous call to the allocation function.
+@end deftypefun
+
+
+@deftypefn ccmem_asciiz_t ccmem_asciiz_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
+Preprocessor macro that builds and returns a new @asciiz{} string representing the reallocation of
+@var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
+allocation function.  If the argument @var{S_H} is a pointer to:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_asciiz_realloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_asciiz_realloc_guarded_error}.
+@end table
+@end deftypefn
 
 @c page
 @node utils

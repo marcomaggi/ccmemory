@@ -391,6 +391,13 @@ ccmem_new_block_from_ascii (ccmem_ascii_t S)
   return ccmem_new_block((uint8_t *)S.ptr, S.len);
 }
 
+__attribute__((__always_inline__))
+static inline ccmem_block_t
+ccmem_new_block_from_asciiz (ccmem_asciiz_t S)
+{
+  return ccmem_new_block((uint8_t *)S.ptr, 1 + S.len);
+}
+
 __attribute__((__always_inline__,__nonnull__(1,2)))
 static inline ccmem_block_t
 ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
@@ -658,6 +665,8 @@ ccmem_ascii_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
  ** Memory handling: ASCIIZ-coded, zero-terminated strings.
  ** ----------------------------------------------------------*/
 
+/* constructors */
+
 __attribute__((__always_inline__,__nonnull__(1)))
 static inline ccmem_asciiz_t
 ccmem_new_asciiz (char * ptr, size_t len)
@@ -665,6 +674,17 @@ ccmem_new_asciiz (char * ptr, size_t len)
   ccmem_asciiz_t	S = {
     .ptr = ptr,
     .len = len
+  };
+  return S;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_asciiz_t
+ccmem_new_asciiz_empty (void)
+{
+  ccmem_asciiz_t	S = {
+    .ptr = "",
+    .len = 0
   };
   return S;
 }
@@ -688,25 +708,56 @@ ccmem_new_asciiz_from_str (char * str)
 }
 
 __attribute__((__always_inline__))
-static inline bool
-ccmem_asciiz_is_empty (ccmem_asciiz_t S)
+static inline ccmem_asciiz_t
+ccmem_new_asciiz_from_block (ccmem_block_t B)
+/* We assume  that the string  in the  block is zero-terminated  and the
+   terminating zero is an octet counted by the block's length. */
 {
-  return (NULL == S.ptr);
+  return ccmem_new_asciiz((char *)B.ptr, B.len - 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* predicates */
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_asciiz_is_empty (ccmem_asciiz_t const S)
+{
+  return ((0 == S.len) && (NULL != S.ptr) && ('\0' == S.ptr[S.len]));
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_asciiz_is_null (ccmem_asciiz_t const S)
+{
+  return ((0 == S.len) && (NULL == S.ptr))? true : false;
 }
 
 __attribute__((__always_inline__))
 static inline bool
 ccmem_asciiz_is_terminated (ccmem_asciiz_t S)
 {
-  return ('\0' == S.ptr[S.len]);
+  return ((NULL != S.ptr) && ('\0' == S.ptr[S.len]))? true : false;
 }
+
+/* ------------------------------------------------------------------ */
+/* comparison */
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_asciiz_equal (ccmem_asciiz_t const S1, ccmem_asciiz_t const S2)
+{
+  return ((S1.len == S2.len) && (0 == strncmp(S1.ptr, S2.ptr, S1.len)))? true : false;
+}
+
+/* ------------------------------------------------------------------ */
+/* operations */
 
 __attribute__((__always_inline__))
 static inline void
 ccmem_asciiz_clean_memory (ccmem_asciiz_t S)
 {
-  memset(S.ptr, '\0', S.len);
-  S.ptr[S.len] = '\0';
+  memset(S.ptr, '\0', 1+S.len);
 }
 
 __attribute__((__always_inline__))
@@ -716,23 +767,8 @@ ccmem_asciiz_terminate (ccmem_asciiz_t S)
   S.ptr[S.len] = '\0';
 }
 
-__attribute__((__always_inline__))
-static inline ccmem_asciiz_t
-ccmem_asciiz_from_block (ccmem_block_t B)
-/* We assume  that the string  in the  block is zero-terminated  and the
-   terminating zero is an octet counted by the block's length. */
-{
-  return ccmem_new_asciiz((char *)B.ptr, B.len - 1);
-}
-
-__attribute__((__always_inline__))
-static inline ccmem_block_t
-ccmem_block_from_asciiz (ccmem_asciiz_t S)
-{
-  return ccmem_new_block((uint8_t *)S.ptr, 1 + S.len);
-}
-
-/* ------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
+/* dynamic memory allocation */
 
 __attribute__((__always_inline__,__nonnull__(1,2)))
 static inline ccmem_asciiz_t
@@ -756,10 +792,61 @@ __attribute__((__always_inline__,__nonnull__(1)))
 static inline void
 ccmem_asciiz_free (ccmem_allocator_t const * const A, ccmem_asciiz_t S)
 {
-  if (S.ptr) {
-    ccmem_free(A, S.ptr);
-  }
+  ccmem_free(A, S.ptr);
 }
+
+/* ------------------------------------------------------------ */
+/* guarded memory allocation */
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				   ccmem_allocator_t const * const A, size_t len)
+{
+  ccmem_asciiz_t	S = ccmem_new_asciiz(ccmem_malloc_guarded(L, S_H, A, 1+len), len);
+  ccmem_asciiz_terminate(S);
+  return S;
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				   ccmem_allocator_t const * const A, size_t len)
+{
+  ccmem_asciiz_t	S = ccmem_new_asciiz(ccmem_malloc_guarded(L, S_H, A, 1+len), len);
+  ccmem_asciiz_terminate(S);
+  return S;
+}
+
+#define ccmem_asciiz_malloc_guarded(L, S_H, A, len)			\
+  _Generic((S_H),							\
+	   ccmem_clean_handler_t *:	ccmem_asciiz_malloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_asciiz_malloc_guarded_error)(L, S_H, A, len)
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				    ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)
+{
+  ccmem_asciiz_t	R = ccmem_new_asciiz(ccmem_realloc_guarded(L, S_H, A, S.ptr, 1+newlen), newlen);
+  ccmem_asciiz_terminate(R);
+  return R;
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_asciiz_t
+ccmem_asciiz_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				    ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)
+{
+  ccmem_asciiz_t	R = ccmem_new_asciiz(ccmem_realloc_guarded(L, S_H, A, S.ptr, 1+newlen), newlen);
+  ccmem_asciiz_terminate(R);
+  return R;
+}
+
+#define ccmem_asciiz_realloc_guarded(L, S_H, A, S, newlen)		\
+  _Generic((S_H),							\
+	   ccmem_clean_handler_t *:	ccmem_asciiz_realloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_asciiz_realloc_guarded_error)(L, S_H, A, S, newlen)
 
 
 /** --------------------------------------------------------------------

@@ -53,7 +53,8 @@ check_PROGRAMS	= \
 	tests/standard-allocator	\
 	tests/exception-handlers	\
 	tests/memory-blocks		\
-	tests/ascii-strings
+	tests/ascii-strings		\
+	tests/asciiz-strings
 
 if CCSEMVER_TESTING_ENABLED
 TESTS				= $(check_PROGRAMS)
@@ -76,6 +77,9 @@ tests_memory_blocks_LDADD		= $(ccmemory_tests_ldadd)
 
 tests_ascii_strings_CPPFLAGS		= $(ccmemory_tests_cppflags)
 tests_ascii_strings_LDADD		= $(ccmemory_tests_ldadd)
+
+tests_asciiz_strings_CPPFLAGS		= $(ccmemory_tests_cppflags)
+tests_asciiz_strings_LDADD		= $(ccmemory_tests_ldadd)
 
 ## --------------------------------------------------------------------
 
