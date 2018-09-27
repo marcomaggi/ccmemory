@@ -554,6 +554,13 @@ ccmem_new_ascii_from_block (ccmem_block_t B)
   return ccmem_new_ascii((char *)B.ptr, B.len);
 }
 
+__attribute__((__always_inline__))
+static inline ccmem_ascii_t
+ccmem_new_ascii_from_asciiz (ccmem_asciiz_t S)
+{
+  return ccmem_new_ascii((char *)S.ptr, S.len);
+}
+
 /* ------------------------------------------------------------------ */
 /* predicates */
 

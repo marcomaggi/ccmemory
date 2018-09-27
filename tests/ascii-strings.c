@@ -97,6 +97,19 @@ test_1_5_1 (cce_destination_t L)
   cctests_assert_equal_size(L, B.len, S.len);
 }
 
+void
+test_1_6_1 (cce_destination_t L)
+/* Test for "ccmem_new_ascii_from_asciiz()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_asciiz_t	B   = ccmem_new_asciiz(str, len);
+  ccmem_ascii_t		S   = ccmem_new_ascii_from_asciiz(B);
+
+  cctests_assert_equal_pointer(L, B.ptr, S.ptr);
+  cctests_assert_equal_size(L, B.len, S.len);
+}
+
 
 /** --------------------------------------------------------------------
  ** Predicates.

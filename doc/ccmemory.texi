@@ -1059,6 +1059,11 @@ Build and return a new instance initialised with the fields from the given block
 supposed to hold a valid @ascii{} string, with no zero characters inside.
 @end deftypefun
 
+
+@deftypefun ccmem_ascii_t ccmem_new_ascii_from_asciiz (ccmem_asciiz_t @var{B})
+Build and return a new instance initialised with the fields from the given @asciiz{} string.
+@end deftypefun
+
 @c page
 @node ascii non-zero predicates
 @subsection Predicates for @ascii{} strings
