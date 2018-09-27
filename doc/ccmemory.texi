@@ -806,6 +806,11 @@ Just initialise and return a new block with the given arguments.
 @end deftypefun
 
 
+@deftypefun ccmem_block_t ccmem_new_block_from_ascii (ccmem_ascii_t @var{S})
+Build and return a new instance initialised with the fields from the given @ascii{} string.
+@end deftypefun
+
+
 @deftypefun ccmem_block_t ccmem_block_new (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
 exception by jumping to the location @var{L}.
@@ -1010,43 +1015,77 @@ Pointer to the first character in the string.
 @end table
 @end deftp
 
+@c ------------------------------------------------------------------------
+
+@subsubheading Constructors
+
 
 @deftypefun ccmem_ascii_t ccmem_new_ascii (char * @var{ptr}, size_t @var{len})
-Build and return a new @struct{} instance, initialised with the given operands.
+Build and return a new instance, initialised with the given operands.
 @end deftypefun
 
 
 @deftypefun ccmem_ascii_t ccmem_new_ascii_empty (void)
-Build and return a new @struct{} instance, representing an empty string.  The pointer field is set
-to @cnull{}; the length field is set to zero.
+Build and return a new instance, representing an empty string.  The pointer field references a
+statically allocated empty string; the length field is set to zero.
+@end deftypefun
+
+
+@deftypefun ccmem_ascii_t ccmem_new_ascii_null (void)
+Build and return a new instance: the pointer field is set to @cnull{}; the length field is set to
+zero.
 @end deftypefun
 
 
 @deftypefun ccmem_ascii_t ccmem_new_ascii_from_str (char * @var{str})
-Build and return a new @struct{} instance, initialised with the given pointer to an @asciiz{}
-string.  The length of the string is determined with a call to @cfunc{strlen}.
+Build and return a new instance, initialised with the given pointer to an @asciiz{} string.  The
+length of the string is determined with a call to @cfunc{strlen}.
 @end deftypefun
 
 
-@deftypefun bool ccmem_ascii_is_empty (ccmem_ascii_t @var{S})
-Return @ctrue{} if the string is empty; otherwise return @cfalse{}.
+@deftypefun ccmem_ascii_t ccmem_new_ascii_from_block (ccmem_block_t @var{B})
+Build and return a new instance initialised with the fields from the given block.  The block is
+supposed to hold a valid @ascii{} string, with no zero characters inside.
 @end deftypefun
+
+@c ------------------------------------------------------------------------
+
+@subsubheading Predicates
+
+
+@deftypefun bool ccmem_ascii_is_empty (ccmem_ascii_t const @var{S})
+Return @ctrue{} if the string is empty, that is: the string length is zero, the string pointer is
+non--@cnull{}; otherwise return @cfalse{}.
+@end deftypefun
+
+
+@deftypefun bool ccmem_ascii_is_null (ccmem_ascii_t const @var{S})
+Return @ctrue{} if the string is null, that is: the string length is zero, the string pointer is
+@cnull{}; otherwise return @cfalse{}.
+@end deftypefun
+
+@c ------------------------------------------------------------------------
+
+@subsubheading Comparison
+
+
+@deftypefun bool ccmem_ascii_compar (ccmem_ascii_t const @vari{S}, ccmem_ascii_t const @varii{S})
+Return @ctrue{} if the strings have the same length and the same contents; otherwise return
+@cfalse{}.
+@end deftypefun
+
+@c ------------------------------------------------------------------------
+
+@subsubheading Operations
 
 
 @deftypefun void ccmem_ascii_clean_memory (ccmem_ascii_t @var{S})
 Reset to zero all the characters in the string.
 @end deftypefun
 
+@c ------------------------------------------------------------------------
 
-@deftypefun ccmem_ascii_t ccmem_ascii_from_block (ccmem_block_t @var{B})
-Build and return a new @struct{} instance initialised with the fields from the given block.  The
-block is supposed to hold a valid @ascii{} string, with no zero characters inside.
-@end deftypefun
-
-
-@deftypefun ccmem_block_t ccmem_block_from_ascii (ccmem_ascii_t @var{S})
-Build and return a new block instance initialised with the fields from the given string.
-@end deftypefun
+@subsubheading Dynamic memory allocation
 
 
 @deftypefun ccmem_ascii_t ccmem_ascii_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})

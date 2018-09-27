@@ -346,15 +346,32 @@ ccmem_std_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_
 
 
 /** --------------------------------------------------------------------
- ** Memory blocks.
+ ** Type definitions for memory blocks, ASCII strings, ASCIIZ strings.
  ** ----------------------------------------------------------------- */
 
-typedef struct ccmem_block_t {
+typedef struct ccmem_block_t		ccmem_block_t;
+typedef struct ccmem_ascii_t		ccmem_ascii_t;
+typedef struct ccmem_asciiz_t		ccmem_asciiz_t;
+
+struct ccmem_block_t {
   size_t	len;
   uint8_t *	ptr;
-} ccmem_block_t;
+};
 
-/* ------------------------------------------------------------------ */
+struct ccmem_ascii_t {
+  size_t	len;
+  char *	ptr;
+};
+
+struct ccmem_asciiz_t {
+  size_t	len;
+  char *	ptr;
+};
+
+
+/** --------------------------------------------------------------------
+ ** Memory blocks.
+ ** ----------------------------------------------------------------- */
 
 __attribute__((__always_inline__,__nonnull__(1)))
 static inline ccmem_block_t
@@ -365,6 +382,13 @@ ccmem_new_block (uint8_t * ptr, size_t len)
     .len = len
   };
   return B;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_block_t
+ccmem_new_block_from_ascii (ccmem_ascii_t S)
+{
+  return ccmem_new_block((uint8_t *)S.ptr, S.len);
 }
 
 __attribute__((__always_inline__,__nonnull__(1,2)))
@@ -474,12 +498,7 @@ ccmem_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t 
  ** Memory handling: ASCII-coded, not zero-terminated strings.
  ** ----------------------------------------------------------*/
 
-typedef struct ccmem_ascii_t		ccmem_ascii_t;
-
-struct ccmem_ascii_t {
-  size_t	len;
-  char *	ptr;
-};
+/* constructors */
 
 __attribute__((__always_inline__,__nonnull__(1)))
 static inline ccmem_ascii_t
@@ -497,6 +516,17 @@ static inline ccmem_ascii_t
 ccmem_new_ascii_empty (void)
 {
   ccmem_ascii_t		S = {
+    .ptr = "",
+    .len = 0
+  };
+  return S;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_ascii_t
+ccmem_new_ascii_null (void)
+{
+  ccmem_ascii_t		S = {
     .ptr = NULL,
     .len = 0
   };
@@ -511,11 +541,41 @@ ccmem_new_ascii_from_str (char * str)
 }
 
 __attribute__((__always_inline__))
-static inline bool
-ccmem_ascii_is_empty (ccmem_ascii_t S)
+static inline ccmem_ascii_t
+ccmem_new_ascii_from_block (ccmem_block_t B)
 {
-  return (NULL == S.ptr);
+  return ccmem_new_ascii((char *)B.ptr, B.len);
 }
+
+/* ------------------------------------------------------------------ */
+/* predicates */
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_ascii_is_empty (ccmem_ascii_t const S)
+{
+  return ((0 == S.len) && (NULL != S.ptr));
+}
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_ascii_is_null (ccmem_ascii_t const S)
+{
+  return ((0 == S.len) && (NULL == S.ptr))? true : false;
+}
+
+/* ------------------------------------------------------------------ */
+/* comparison */
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_ascii_compar (ccmem_ascii_t const S1, ccmem_ascii_t const S2)
+{
+  return ((S1.len == S2.len) && (0 == strncmp(S1.ptr, S2.ptr, S1.len)))? true : false;
+}
+
+/* ------------------------------------------------------------------ */
+/* operations */
 
 __attribute__((__always_inline__))
 static inline void
@@ -524,21 +584,8 @@ ccmem_ascii_clean_memory (ccmem_ascii_t S)
   memset(S.ptr, '\0', S.len);
 }
 
-__attribute__((__always_inline__))
-static inline ccmem_ascii_t
-ccmem_ascii_from_block (ccmem_block_t B)
-{
-  return ccmem_new_ascii((char *)B.ptr, B.len);
-}
-
-__attribute__((__always_inline__))
-static inline ccmem_block_t
-ccmem_block_from_ascii (ccmem_ascii_t S)
-{
-  return ccmem_new_block((uint8_t *)S.ptr, S.len);
-}
-
 /* ------------------------------------------------------------ */
+/* memory allocation */
 
 __attribute__((__always_inline__,__nonnull__(1,2)))
 static inline ccmem_ascii_t
@@ -567,13 +614,6 @@ ccmem_ascii_free (ccmem_allocator_t const * const A, ccmem_ascii_t S)
 /** ------------------------------------------------------------
  ** Memory handling: ASCIIZ-coded, zero-terminated strings.
  ** ----------------------------------------------------------*/
-
-typedef struct ccmem_asciiz_t		ccmem_asciiz_t;
-
-struct ccmem_asciiz_t {
-  size_t	len;
-  char *	ptr;
-};
 
 __attribute__((__always_inline__,__nonnull__(1)))
 static inline ccmem_asciiz_t
