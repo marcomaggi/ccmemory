@@ -167,10 +167,6 @@ the package CCExceptions is available at:
 
 [https://github.com/marcomaggi/ccexceptions/](https://github.com/marcomaggi/ccexceptions/)
 
-the package CCMemory is available at:
-
-[https://github.com/marcomaggi/ccmemory/](https://github.com/marcomaggi/ccmemory/)
-
 the package CCTests is available at:
 
 [https://github.com/marcomaggi/cctests/](https://github.com/marcomaggi/cctests/)
