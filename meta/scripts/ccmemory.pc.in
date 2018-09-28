@@ -22,7 +22,7 @@ Name: @PACKAGE_NAME@
 Description: C11 library for custom memory allocators
 Version: @CCMEMORY_PKG_CONFIG_VERSION@
 Requires: ccexceptions >= 0.8.0
-Libs: -L${libdir} -lccmemory -lccexceptions
+Libs: -L${libdir} -lccmemory
 Cflags: -I${includedir}
 
 ### end of file
