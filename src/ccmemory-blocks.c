@@ -34,65 +34,6 @@
 
 
 /** --------------------------------------------------------------------
- ** Exception handlers.
- ** ----------------------------------------------------------------- */
-
-static void
-ccmem_block_delete_handler (cce_condition_t const * C CCMEM_UNUSED, cce_handler_t * _H)
-{
-  CCMEM_PC(ccmem_block_clean_handler_t, H, _H);
-
-  if (0) { fprintf(stderr, "%s: releasing block %p\n", __func__, (void *)H->B.ptr); }
-  ccmem_block_delete(H->A, H->B);
-}
-
-__attribute__((__hot__))
-void
-ccmem_block_register_clean_handler (cce_destination_t L, ccmem_block_clean_handler_t * H,
-				    ccmem_allocator_t const * const A, ccmem_block_t B)
-{
-  H->handler.handler.function	= ccmem_block_delete_handler;
-  H->A	= A;
-  H->B	= B;
-  cce_register_clean_handler(L, &(H->handler));
-}
-
-__attribute__((__hot__))
-void
-ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handler_t * H,
-				    ccmem_allocator_t const * const A, ccmem_block_t B)
-{
-  H->handler.handler.function	= ccmem_block_delete_handler;
-  H->A	= A;
-  H->B	= B;
-  cce_register_error_handler(L, &(H->handler));
-}
-
-
-/** --------------------------------------------------------------------
- ** Guarded allocation.
- ** ----------------------------------------------------------------- */
-
-__attribute__((__hot__))
-ccmem_block_t
-ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
-{
-  ccmem_block_t	B = ccmem_block_new(L, A, len);
-  ccmem_block_register_clean_handler(L, H, A, B);
-  return B;
-}
-
-__attribute__((__hot__))
-ccmem_block_t
-ccmem_block_new_guarded_error (cce_destination_t L, ccmem_block_error_handler_t * H, ccmem_allocator_t const * const A, size_t const len)
-{
-  ccmem_block_t B = ccmem_block_new(L, A, len);
-  ccmem_block_register_error_handler(L, H, A, B);
-  return B;
-}
-
-
-/** --------------------------------------------------------------------
  ** Operations.
  ** ----------------------------------------------------------------- */
 

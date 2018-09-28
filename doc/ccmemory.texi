@@ -750,59 +750,41 @@ The macro use expands into a call to @cfunc{ccmem_std_realloc_guarded_error}.
 @chapter Blocks of memory
 
 
-@menu
-* blocks typedefs::             Type definitions.
-* blocks constructors::         Constructors and destructors.
-* blocks handlers::             Exception handlers for memory blocks.
-* blocks guarded::              Guarded constructors.
-* blocks predicates::           Memory blocks predicates.
-* blocks operations::           Operating on memory blocks.
-@end menu
-
-@c page
-@node blocks typedefs
-@section Type definitions
-
-
 @deftp {Struct Typedef} ccmem_block_t
-Type of @code{struct} representing a block of memory.  It has the following fields:
+Type representing an memory.  Usually instances of this type are passed around by value.  It has the
+following fields:
 
 @table @code
 @item size_t len
-The number of octets referenced by this block.
+Number of octets in the string.
 
 @item uint8_t * ptr
-Pointer to the first octet in this block.
+Pointer to the first octet in the block.
 @end table
-
-Blocks are so small (two machine words) that they can be used as arguments to function and return
-values with a very small overhead.
 @end deftp
+
+@menu
+* blocks constructors::         Constructors for blocks.
+* blocks predicates::           Predicates for blocks.
+* blocks comparison::           Comparison between blocks.
+* blocks operations::           Operations on blocks.
+* blocks dynamic::              Dynamic memory allocation for blocks.
+* blocks guarded::              Guarded memory allocation for blocks.
+@end menu
 
 @c page
 @node blocks constructors
-@section Constructors and destructors
-
-
-Example of allocating and releasing a memory block:
-
-@example
-cce_location_t        L[1];
-
-if (cce_location(L)) @{
-  cce_run_error_handlers_final(L);
-@} else @{
-   ccmem_block_t  B =
-     ccmem_block_new(L, ccmem_standard_allocator, 4096);
-
-  ccmem_block_delete(ccmem_standard_allocator, B);
-  cce_run_clean_handlers(L);
-@}
-@end example
+@section Constructors for blocks
 
 
 @deftypefun ccmem_block_t ccmem_new_block (uint8_t * @var{ptr}, size_t @var{len})
-Just initialise and return a new block with the given arguments.
+Build and return a new instance, initialised with the given operands.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_new_block_null (void)
+Build and return a new instance: the pointer field is set to @cnull{}; the length field is set to
+zero.
 @end deftypefun
 
 
@@ -811,141 +793,44 @@ Build and return a new instance initialised with the fields from the given @asci
 @end deftypefun
 
 
-@deftypefun ccmem_block_t ccmem_block_new (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
-exception by jumping to the location @var{L}.
+@deftypefun ccmem_block_t ccmem_new_block_from_asciiz (ccmem_blockz_t @var{B})
+Build and return a new instance initialised with the fields from the given @asciiz{} string.  The
+block length includes the terminating zero.
 @end deftypefun
-
-
-@deftypefun void ccmem_block_delete (ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
-Release memory using @var{A}.  Only blocks allocated by @var{A} can be released by @var{A}.
-@end deftypefun
-
-@c page
-@node blocks handlers
-@section Exception handlers for memory blocks
-
-
-Example of allocating and releasing a memory block with exception handlers:
-
-@example
-cce_location_t                L[1];
-ccmem_block_clean_handler_t   B_H[1];
-
-if (cce_location(L)) @{
-  cce_run_error_handlers_final(L);
-@} else @{
-  ccmem_block_t  B = ccmem_block_new(L,
-                       ccmem_standard_allocator, 4096);
-  ccmem_block_register_clean_handler(L, B_H,
-    ccmem_standard_allocator, B);
-
-  /* ... do something with B ... */
-  cce_run_clean_handlers(L);
-@}
-@end example
-
-
-@deftp {Struct Typedef} ccmem_block_clean_handler_t
-@deftpx {Struct Typedef} ccmem_block_error_handler_t
-Type of @code{struct} used to handle memory blocks release whenever an exception is raised in the
-local context.  These types are wrappers for @objtype{cce_clean_handler_t} and
-@objtype{cce_error_handler_t} as defined by the library CCExceptions.
-@end deftp
-
-
-@deftypefun void ccmem_block_register_clean_handler (cce_destination_t @var{L}, ccmem_block_clean_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
-@deftypefunx void ccmem_block_register_error_handler (cce_destination_t @var{L}, ccmem_block_error_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{B})
-Register the allocator @var{A} and the block @var{B} in the handler @var{H} in the context of
-@var{L}.  The block is released using the allocator in case of cleaning or error.
-@end deftypefun
-
-@c page
-@node blocks guarded
-@section Guarded constructors
-
-
-Example of allocating and releasing a memory block with a guarded constructor:
-
-@example
-cce_location_t                L[1];
-ccmem_block_clean_handler_t   B_H[1];
-
-if (cce_location(L)) @{
-  cce_run_error_handlers_final(L);
-@} else @{
-  ccmem_block_t  B = ccmem_block_new_guarded(L, B_H,
-                       ccmem_standard_allocator, 4096);
-
-  /* ... do something with B ... */
-  cce_run_clean_handlers(L);
-@}
-@end example
-
-
-@deftypefun ccmem_block_t ccmem_block_new_guarded_clean (cce_destination_t @var{L}, ccmem_block_clean_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
-exception by jumping to the location @var{L}.  The allocator and the block are registered in the
-exception handler @var{H}, so that the block is released in case of cleaning.
-@end deftypefun
-
-
-@deftypefun ccmem_block_t ccmem_block_new_guarded_error (cce_destination_t @var{L}, ccmem_block_error_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
-exception by jumping to the location @var{L}.  The allocator and the block are registered in the
-exception handler @var{H}, so that the block is released in case of error.
-@end deftypefun
-
-
-@deftypefn {Preprocessor Macro} ccmem_block_t ccmem_block_new_guarded (cce_destination_t @var{L}, ccmem_block_clean_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-@deftypefnx {Preprocessor Macro} ccmem_block_t ccmem_block_new_guarded (cce_destination_t @var{L}, ccmem_block_error_handler_t * @var{H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
-This macro uses @code{_Generic} to dispatch the expansion according to the type of @var{H}.
-Allocate memory using @var{A}, then build and return a new block.  If an error occurs: raise an
-exception by jumping to the location @var{L}.  If the argument @var{H} is a pointer of type:
-
-@table @code
-@item ccmem_block_clean_handler_t
-The allocator and the block are registered in the exception handler @var{H}, so that the block is
-released in case of cleaning.
-
-@item ccmem_block_error_handler_t
-The allocator and the block are registered in the exception handler @var{H}, so that the block is
-released in case of error.
-@end table
-@end deftypefn
 
 @c page
 @node blocks predicates
-@section Memory blocks predicates
+@section Predicates for blocks
 
 
-@deftypefun bool ccmem_block_is_empty (ccmem_block_t @var{B})
-Return @ctrue{} if the block is empty (the number of referenced octets is zero); otherwise return
-@cfalse{}.
+@deftypefun bool ccmem_block_is_empty (ccmem_block_t const @var{S})
+Return @ctrue{} if the block is empty, that is: the length is zero, the pointer is @strong{not}
+@cnull{}; otherwise return @cfalse{}.
 @end deftypefun
 
 
-@deftypefun bool ccmem_block_is_null (ccmem_block_t @var{B})
-Return @ctrue{} if the block is nullified (the pointer is @cnull{}); otherwise return @cfalse{}.
+@deftypefun bool ccmem_block_is_null (ccmem_block_t const @var{S})
+Return @ctrue{} if the block is null, that is: the length is zero, the pointer is @cnull{};
+otherwise return @cfalse{}.
+@end deftypefun
+
+@c page
+@node blocks comparison
+@section Comparison between blocks
+
+
+@deftypefun bool ccmem_block_equal (ccmem_block_t const @vari{S}, ccmem_block_t const @varii{S})
+Return @ctrue{} if the strings have the same length and the same contents; otherwise return
+@cfalse{}.
 @end deftypefun
 
 @c page
 @node blocks operations
-@section Operating on memory blocks
+@section Operations on blocks
 
 
-@deftypefun void ccmem_block_memset (ccmem_block_t @var{B}, uint8_t @var{octet})
-Set to @var{octet} all the octets referenced by @var{B}.
-@end deftypefun
-
-
-@deftypefun void ccmem_block_clean (ccmem_block_t @var{B})
-Set to zero all the octets referenced by @var{B}.
-@end deftypefun
-
-
-@deftypefun void ccmem_block_nullify (ccmem_block_t * @var{BP})
-Nullify the block by setting the pointer to @cnull{} and the number of octets to zero.
+@deftypefun void ccmem_block_clean_memory (ccmem_block_t @var{S})
+Reset to zero all the characters in the string.
 @end deftypefun
 
 
@@ -986,6 +871,138 @@ than, or equal to, the one referenced by @var{B}, as in the following picture:
            B                    C
 @end example
 @end deftypefun
+
+@c page
+@node blocks dynamic
+@section Dynamic memory allocation for blocks
+
+
+@deftypefun ccmem_block_t ccmem_block_malloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Use the given allocator to allocate enough memory to hold @var{len} octets and return a new instance
+referencing the memory.  If an error occurs: raise an exception by performing a non--local exit to
+@var{L}.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_realloc (cce_destination_t @var{L}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
+Use the given allocator to reallocate the memory referenced by @var{S} to a new size.  Return a new
+@struct{} instance referencing the reallocated memory.  If an error occurs: raise an exception by
+performing a non--local exit to @var{L}.
+@end deftypefun
+
+
+@deftypefun void ccmem_block_free (ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S})
+Use the given allocator to release the memory referenced by @var{S}.
+@end deftypefun
+
+@c page
+@node blocks guarded
+@section Guarded memory allocation for blocks
+
+
+@menu
+* blocks guarded malloc::       Guarding memory allocated with @code{malloc}.
+* blocks guarded realloc::      Guarding memory allocated with @code{realloc}.
+@end menu
+
+@c page
+@node blocks guarded malloc
+@subsection Guarding memory allocated with @code{malloc}
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t S_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  ccmem_block_t  S = ccmem_block_malloc_guarded(L, S_H,
+                       ccmem_standard_allocator, 4);
+
+  ...
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun ccmem_block_t ccmem_block_malloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Adapter for @cfunc{ccmem_malloc_guarded_clean} that builds and returns a new blocks.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_malloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Adapter for @cfunc{ccmem_malloc_guarded_error} that builds and returns a new blocks.
+@end deftypefun
+
+
+@deftypefn ccmem_block_t ccmem_block_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+Preprocessor macro that builds and returns a new block.  If the argument @var{S_H} is a pointer to:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_block_malloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_block_malloc_guarded_error}.
+@end table
+@end deftypefn
+
+@c page
+@node blocks guarded realloc
+@subsection Guarding memory allocated with @code{realloc}
+
+
+Usage example:
+
+@example
+cce_location_t        L[1];
+ccmem_clean_handler_t S_H[1];
+
+if (cce_location(L)) @{
+  cce_run_catch_handlers_raise(L, upper_L);
+@} else @{
+  ccmem_block_t  S = ccmem_block_malloc_guarded(L, S_H,
+                       ccmem_standard_allocator, 256);
+
+  ...
+  S = ccmem_block_realloc_guarded(L, S_H,
+        ccmem_standard_allocator, S, 512);
+  ...
+  cce_run_body_handlers(L);
+@}
+@end example
+
+
+@deftypefun ccmem_block_t ccmem_block_realloc_guarded_clean (cce_destination_t @var{L}, ccmem_clean_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
+Adapter for @cfunc{ccmem_realloc_guarded_clean} that builds and returns a new block representing the
+reallocation of @var{S}.  The given handler must be @strong{the same} handler used in a previous
+call to the allocation function.
+@end deftypefun
+
+
+@deftypefun ccmem_block_t ccmem_block_realloc_guarded_error (cce_destination_t @var{L}, ccmem_error_handler_t * @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
+Adapter for @cfunc{ccmem_realloc_guarded_error} that builds and returns a new block string
+representing the reallocation of @var{S}.  The given handler must be @strong{the same} handler used
+in a previous call to the allocation function.
+@end deftypefun
+
+
+@deftypefn ccmem_block_t ccmem_block_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
+Preprocessor macro that builds and returns a new block string representing the reallocation of
+@var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
+allocation function.  If the argument @var{S_H} is a pointer to:
+
+@table @code
+@item ccmem_clean_handler_t
+The macro use expands into a call to @cfunc{ccmem_block_realloc_guarded_clean}.
+
+@item ccmem_error_handler_t
+The macro use expands into a call to @cfunc{ccmem_block_realloc_guarded_error}.
+@end table
+@end deftypefn
 
 @c page
 @node ascii

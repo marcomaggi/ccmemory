@@ -1,7 +1,7 @@
 /*
   Part of: CCMemory
   Contents: tests for memory blocks
-  Date: May  8, 2018
+  Date: Sep 28, 2018
 
   Abstract
 
@@ -34,155 +34,177 @@
 #include "ccmemory.h"
 #include <cctests.h>
 
-typedef struct my_complex_t	my_complex_t;
-
-struct my_complex_t {
-  double	re;
-  double	im;
-};
-
 
 /** --------------------------------------------------------------------
- ** Memory allocation and release.
+ ** Constructors.
  ** ----------------------------------------------------------------- */
 
 void
-test_1_1 (cce_destination_t L)
+test_1_1_1 (cce_destination_t L)
+/* Test for "ccmem_new_block()". */
 {
-  ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B   = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
 
-  memset(B.ptr, 0, 4096);
-
-  cctests_assert(L, 4096 == B.len);
-  cctests_assert(L, NULL != B.ptr);
-
-  ccmem_block_delete(ccmem_standard_allocator, B);
+  cctests_assert_ascii(L, str, (char *)B.ptr, B.len);
+  cctests_assert_equal_size(L, len, B.len);
 }
 
 void
-test_1_2 (cce_destination_t upper_L)
+test_1_2_1 (cce_destination_t L)
+/* Test for "ccmem_new_block_null()". */
 {
-  cce_location_t	L[1];
+  ccmem_block_t		S   = ccmem_new_block_null();
 
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
-
-    memset(B.ptr, 0, 4096);
-
-    cctests_assert(L, 4096 == B.len);
-    cctests_assert(L, NULL != B.ptr);
-
-    ccmem_block_delete(ccmem_standard_allocator, B);
-
-    cce_run_body_handlers(L);
-  }
-}
-
-
-/** --------------------------------------------------------------------
- ** Memory allocation and release using exception handlers.
- ** ----------------------------------------------------------------- */
-
-void
-test_2_1 (cce_destination_t upper_L)
-{
-  cce_location_t		L[1];
-  ccmem_block_clean_handler_t	B_H[1];
-
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    ccmem_block_t	B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
-    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-
-    cctests_assert(L, 4096 == B.len);
-    cctests_assert(L, NULL != B.ptr);
-
-    cce_run_body_handlers(L);
-  }
+  cctests_assert_equal_pointer(L, NULL, S.ptr);
+  cctests_assert_equal_size(L, 0, S.len);
 }
 
 void
-test_2_2 (cce_destination_t upper_L)
+test_1_3_1 (cce_destination_t L)
+/* Test for "ccmem_new_block_from_ascii()". */
 {
-  cce_location_t		L[1];
-  ccmem_block_clean_handler_t	B_H[1];
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_ascii_t		S   = ccmem_new_ascii(str, len);
+  ccmem_block_t		B   = ccmem_new_block_from_ascii(S);
 
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    cce_location_t		inner_L[1];
-    ccmem_block_error_handler_t	inner_B_H[1];
-    ccmem_block_t		B;
+  cctests_assert_equal_pointer(L, S.ptr, B.ptr);
+  cctests_assert_equal_size(L, S.len, B.len);
+}
 
-    if (cce_location(L)) {
-      cce_run_catch_handlers_raise(inner_L, L);
-    } else {
-      B = ccmem_block_new(L, ccmem_standard_allocator, 4096);
-      ccmem_block_register_error_handler(L, inner_B_H, ccmem_standard_allocator, B);
+void
+test_1_4_1 (cce_destination_t L)
+/* Test for "ccmem_new_block_from_asciiz()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_asciiz_t	S   = ccmem_new_asciiz(str, len);
+  ccmem_block_t		B   = ccmem_new_block_from_asciiz(S);
 
-      cctests_assert(L, 4096 == B.len);
-      cctests_assert(L, NULL != B.ptr);
-
-      cce_run_body_handlers(L);
-    }
-
-    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_body_handlers(L);
-  }
+  cctests_assert_equal_pointer(L, S.ptr, B.ptr);
+  cctests_assert_equal_size(L, 1+S.len, B.len);
 }
 
 
 /** --------------------------------------------------------------------
- ** Memory allocation and release using guarded constructors.
+ ** Predicates.
  ** ----------------------------------------------------------------- */
 
 void
-test_3_1 (cce_destination_t upper_L)
+test_2_1_1 (cce_destination_t L)
+/* Test for "ccmem_block_is_empty()". */
 {
-  cce_location_t		L[1];
-  ccmem_block_clean_handler_t	B_H[1];
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B   = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
 
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    ccmem_block_t	B = ccmem_block_new_guarded(L, B_H, ccmem_standard_allocator, 4096);
-
-    cctests_assert(L, 4096 == B.len);
-    cctests_assert(L, NULL != B.ptr);
-
-    cce_run_body_handlers(L);
-  }
+  cctests_assert(L, ! ccmem_block_is_empty(B));
 }
 
 void
-test_3_2 (cce_destination_t upper_L)
+test_2_1_2 (cce_destination_t L)
+/* Test for "ccmem_block_is_empty()". */
 {
-  cce_location_t		L[1];
-  ccmem_block_clean_handler_t	B_H[1];
+  ccmem_block_t		B = ccmem_new_block_from_ascii(ccmem_new_ascii_empty());
 
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    cce_location_t		inner_L[1];
-    ccmem_block_error_handler_t	inner_B_H[1];
-    ccmem_block_t		B;
+  cctests_assert(L, ccmem_block_is_empty(B));
+}
 
-    if (cce_location(L)) {
-      cce_run_catch_handlers_raise(inner_L, L);
-    } else {
-      B = ccmem_block_new_guarded(L, inner_B_H, ccmem_standard_allocator, 4096);
-      cctests_assert(L, 4096 == B.len);
-      cctests_assert(L, NULL != B.ptr);
+void
+test_2_1_3 (cce_destination_t L)
+/* Test for "ccmem_block_is_empty()". */
+{
+  ccmem_block_t		B = ccmem_new_block_from_ascii(ccmem_new_ascii_null());
 
-      cce_run_body_handlers(L);
-    }
+  cctests_assert(L, ! ccmem_block_is_empty(B));
+}
 
-    ccmem_block_register_clean_handler(L, B_H, ccmem_standard_allocator, B);
-    cce_run_body_handlers(L);
-  }
+/* ------------------------------------------------------------------ */
+
+void
+test_2_2_1 (cce_destination_t L)
+/* Test for "ccmem_block_is_null()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B   = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
+
+  cctests_assert(L, ! ccmem_block_is_null(B));
+}
+
+void
+test_2_2_2 (cce_destination_t L)
+/* Test for "ccmem_block_is_null()". */
+{
+  ccmem_block_t		B = ccmem_new_block_from_ascii(ccmem_new_ascii_empty());
+
+  cctests_assert(L, ! ccmem_block_is_null(B));
+}
+
+void
+test_2_2_3 (cce_destination_t L)
+/* Test for "ccmem_block_is_null()". */
+{
+  ccmem_block_t		B = ccmem_new_block_from_ascii(ccmem_new_ascii_null());
+
+  cctests_assert(L, ccmem_block_is_null(B));
+}
+
+
+/** --------------------------------------------------------------------
+ ** Comparison.
+ ** ----------------------------------------------------------------- */
+
+void
+test_3_1_1 (cce_destination_t L)
+/* Test for "ccmem_block_equal()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B1  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
+  ccmem_block_t		B2  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
+
+  cctests_assert(L, ccmem_block_equal(B1, B2));
+}
+
+void
+test_3_1_2 (cce_destination_t L)
+/* Test for "ccmem_block_equal()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B1  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
+  ccmem_block_t		B2  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len-1));
+
+  cctests_assert(L, ! ccmem_block_equal(B1, B2));
+}
+
+void
+test_3_1_3 (cce_destination_t L)
+/* Test for "ccmem_block_equal()". */
+{
+  static char *		str = "ciao";
+  size_t 		len = strlen(str);
+  ccmem_block_t		B1  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len-1));
+  ccmem_block_t		B2  = ccmem_new_block_from_ascii(ccmem_new_ascii(str, len));
+
+  cctests_assert(L, ! ccmem_block_equal(B1, B2));
+}
+
+void
+test_3_1_4 (cce_destination_t L)
+/* Test for "ccmem_block_equal()". */
+{
+  static char *		str1 = "ciao";
+  static char *		str2 = "hey!";
+  size_t 		len1 = strlen(str1);
+  size_t 		len2 = strlen(str2);
+  ccmem_block_t		B1  = ccmem_new_block_from_ascii(ccmem_new_ascii(str1, len1));
+  ccmem_block_t		B2  = ccmem_new_block_from_ascii(ccmem_new_ascii(str2, len2));
+
+  cctests_assert(L, ! ccmem_block_equal(B1, B2));
 }
 
 
@@ -192,6 +214,28 @@ test_3_2 (cce_destination_t upper_L)
 
 void
 test_4_1_1 (cce_destination_t L)
+/* Test for "ccmem_block_clean_memory()". */
+{
+  size_t 		len     = 4;
+  char			str1[4] = { 0x01, 0x02, 0x03, 0x04 };
+  char			str2[4] = { 0x00, 0x00, 0x00, 0x00 };
+  ccmem_block_t		S       = ccmem_new_block_from_ascii(ccmem_new_ascii(str1, len));
+
+  ccmem_block_clean_memory(S);
+  cctests_assert(L, 0 == memcmp(str2, S.ptr, S.len));
+}
+
+/* ------------------------------------------------------------------ */
+
+typedef struct my_complex_t	my_complex_t;
+
+struct my_complex_t {
+  double	re;
+  double	im;
+};
+
+void
+test_4_2_1 (cce_destination_t L)
 /* Test for "ccmem_block_shift()". */
 {
   static const my_complex_t	C[3] = {
@@ -235,16 +279,16 @@ test_4_1_1 (cce_destination_t L)
 /* ------------------------------------------------------------------ */
 
 void
-test_4_2_1 (cce_destination_t upper_L)
+test_4_3_1 (cce_destination_t upper_L)
 /* Test for "ccmem_block_difference()". */
 {
-  cce_location_t		L[1];
-  ccmem_block_clean_handler_t	A_H[1];
+  cce_location_t	L[1];
+  ccmem_clean_handler_t	A_H[1];
 
   if (cce_location(L)) {
     cce_run_catch_handlers_raise(L, upper_L);
   } else {
-    ccmem_block_t	A = ccmem_block_new_guarded(L, A_H, ccmem_standard_allocator, 4096);
+    ccmem_block_t	A = ccmem_block_malloc_guarded(L, A_H, ccmem_standard_allocator, 4096);
     ccmem_block_t	B = {
       .ptr = A.ptr,
       .len = 1024,
@@ -259,29 +303,165 @@ test_4_2_1 (cce_destination_t upper_L)
 }
 
 
+/** --------------------------------------------------------------------
+ ** Dynamic memory allocation.
+ ** ----------------------------------------------------------------- */
+
+void
+test_5_1_1 (cce_destination_t upper_L)
+/* Test for "ccmem_block_malloc()". */
+{
+  cce_location_t	L[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	S = ccmem_block_malloc(L, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", (char *)S.ptr, S.len);
+
+    ccmem_block_free(ccmem_standard_allocator, S);
+    cce_run_body_handlers(L);
+  }
+}
+
+void
+test_5_2_1 (cce_destination_t upper_L)
+/* Test for "ccmem_block_realloc()". */
+{
+  cce_location_t	L[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	S = ccmem_block_malloc(L, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", (char *)S.ptr, S.len);
+
+    S = ccmem_block_realloc(L, ccmem_standard_allocator, S, 4+6);
+
+    S.ptr[4] = ' ';
+    S.ptr[5] = 'm';
+    S.ptr[6] = 'a';
+    S.ptr[7] = 'm';
+    S.ptr[8] = 'm';
+    S.ptr[9] = 'a';
+
+    cctests_assert_equal_size(L, 4+6, S.len);
+    cctests_assert_ascii(L, "ciao mamma", (char *)S.ptr, S.len);
+
+    ccmem_block_free(ccmem_standard_allocator, S);
+    cce_run_body_handlers(L);
+  }
+}
+
+
+/** --------------------------------------------------------------------
+ ** Guarded memory allocation.
+ ** ----------------------------------------------------------------- */
+
+void
+test_6_1_1 (cce_destination_t upper_L)
+/* Test for "ccmem_block_malloc_guardeda()". */
+{
+  cce_location_t	L[1];
+  ccmem_clean_handler_t	S_H[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	S = ccmem_block_malloc_guarded(L, S_H, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", (char *)S.ptr, S.len);
+    cce_run_body_handlers(L);
+  }
+}
+
+void
+test_6_2_1 (cce_destination_t upper_L)
+/* Test for "ccmem_block_realloc_guarded()". */
+{
+  cce_location_t	L[1];
+  ccmem_clean_handler_t	S_H[1];
+
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    ccmem_block_t	S = ccmem_block_malloc_guarded(L, S_H, ccmem_standard_allocator, 4);
+
+    S.ptr[0] = 'c';
+    S.ptr[1] = 'i';
+    S.ptr[2] = 'a';
+    S.ptr[3] = 'o';
+
+    cctests_assert_equal_size(L, 4, S.len);
+    cctests_assert_ascii(L, "ciao", (char *)S.ptr, S.len);
+
+    S = ccmem_block_realloc_guarded(L, S_H, ccmem_standard_allocator, S, 4+6);
+
+    S.ptr[4] = ' ';
+    S.ptr[5] = 'm';
+    S.ptr[6] = 'a';
+    S.ptr[7] = 'm';
+    S.ptr[8] = 'm';
+    S.ptr[9] = 'a';
+
+    cctests_assert_equal_size(L, 4+6, S.len);
+    cctests_assert_ascii(L, "ciao mamma", (char *)S.ptr, S.len);
+    cce_run_body_handlers(L);
+  }
+}
+
+
 int
 main (void)
 {
   cctests_init("tests for memory blocks");
   {
-    cctests_begin_group("memory allocation and release");
+    cctests_begin_group("constructors");
     {
-      cctests_run(test_1_1);
-      cctests_run(test_1_2);
+      cctests_run(test_1_1_1);
+      cctests_run(test_1_2_1);
+      cctests_run(test_1_3_1);
+      cctests_run(test_1_4_1);
     }
     cctests_end_group();
 
-    cctests_begin_group("memory allocation and release using exception handlers");
+    cctests_begin_group("predicates");
     {
-      cctests_run(test_2_1);
-      cctests_run(test_2_2);
+      cctests_run(test_2_1_1);
+      cctests_run(test_2_1_2);
+      cctests_run(test_2_1_3);
+      cctests_run(test_2_2_1);
+      cctests_run(test_2_2_2);
+      cctests_run(test_2_2_3);
     }
     cctests_end_group();
 
-    cctests_begin_group("memory allocation and release using guarded constructors");
+    cctests_begin_group("comparison");
     {
-      cctests_run(test_3_1);
-      cctests_run(test_3_2);
+      cctests_run(test_3_1_1);
+      cctests_run(test_3_1_2);
+      cctests_run(test_3_1_3);
+      cctests_run(test_3_1_4);
     }
     cctests_end_group();
 
@@ -289,6 +469,19 @@ main (void)
     {
       cctests_run(test_4_1_1);
       cctests_run(test_4_2_1);
+      cctests_run(test_4_3_1);
+    }
+
+    cctests_begin_group("dynamic memory allocation");
+    {
+      cctests_run(test_5_1_1);
+      cctests_run(test_5_2_1);
+    }
+
+    cctests_begin_group("guarded memory allocation");
+    {
+      cctests_run(test_6_1_1);
+      cctests_run(test_6_2_1);
     }
     cctests_end_group();
   }

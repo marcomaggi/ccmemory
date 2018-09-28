@@ -373,15 +373,28 @@ struct ccmem_asciiz_t {
  ** Memory blocks.
  ** ----------------------------------------------------------------- */
 
+/* constructors */
+
 __attribute__((__always_inline__,__nonnull__(1)))
 static inline ccmem_block_t
 ccmem_new_block (uint8_t * ptr, size_t len)
 {
-  ccmem_block_t		B = {
+  ccmem_block_t		S = {
     .ptr = ptr,
     .len = len
   };
-  return B;
+  return S;
+}
+
+__attribute__((__always_inline__))
+static inline ccmem_block_t
+ccmem_new_block_null (void)
+{
+  ccmem_block_t		S = {
+    .ptr = NULL,
+    .len = 0
+  };
+  return S;
 }
 
 __attribute__((__always_inline__))
@@ -398,100 +411,41 @@ ccmem_new_block_from_asciiz (ccmem_asciiz_t S)
   return ccmem_new_block((uint8_t *)S.ptr, 1 + S.len);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
-static inline ccmem_block_t
-ccmem_block_new (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
-{
-  ccmem_block_t	B = {
-    .ptr	= ccmem_malloc(L, A, len),
-    .len	= len
-  };
-  return B;
-}
-
-__attribute__((__always_inline__,__nonnull__(1)))
-static inline void
-ccmem_block_delete (ccmem_allocator_t const * const A, ccmem_block_t B)
-{
-  ccmem_free(A, B.ptr);
-}
-
 /* ------------------------------------------------------------------ */
-
-typedef struct ccmem_block_clean_handler_t	ccmem_block_clean_handler_t;
-typedef struct ccmem_block_error_handler_t	ccmem_block_error_handler_t;
-
-struct ccmem_block_clean_handler_t {
-  cce_clean_handler_t		handler;
-  ccmem_allocator_t const *	A;
-  ccmem_block_t			B;
-};
-
-struct ccmem_block_error_handler_t {
-  cce_error_handler_t		handler;
-  ccmem_allocator_t const *	A;
-  ccmem_block_t			B;
-};
-
-ccmem_decl void ccmem_block_register_clean_handler (cce_destination_t L, ccmem_block_clean_handler_t * H,
-						    ccmem_allocator_t const * const A, ccmem_block_t B)
-  __attribute__((__nonnull__(1,2,3)));
-
-ccmem_decl void ccmem_block_register_error_handler (cce_destination_t L, ccmem_block_error_handler_t * H,
-						    ccmem_allocator_t const * const A, ccmem_block_t B)
-  __attribute__((__nonnull__(1,2,3)));
-
-ccmem_decl ccmem_block_t ccmem_block_new_guarded_clean (cce_destination_t L, ccmem_block_clean_handler_t * H,
-							ccmem_allocator_t const * const A, size_t const len)
-  __attribute__((__nonnull__(1,2,3)));
-
-ccmem_decl ccmem_block_t ccmem_block_new_guarded_error (cce_destination_t L, ccmem_block_error_handler_t * H,
-							ccmem_allocator_t const * const A, size_t const len)
-  __attribute__((__nonnull__(1,2,3)));
-
-#define ccmem_block_new_guarded(L,H,A,len) \
-  _Generic((H), \
-	   ccmem_block_clean_handler_t	*: ccmem_block_new_guarded_clean, \
-	   ccmem_block_error_handler_t	*: ccmem_block_new_guarded_error)(L,H,A,len)
-
-/* ------------------------------------------------------------------ */
-
-__attribute__((__always_inline__,__const__))
-static inline bool
-ccmem_block_is_empty (ccmem_block_t B)
-{
-  return (0 == B.len);
-}
-
-__attribute__((__always_inline__,__const__))
-static inline bool
-ccmem_block_is_null (ccmem_block_t B)
-{
-  return (NULL == B.ptr);
-}
-
-/* ------------------------------------------------------------------ */
+/* predicates */
 
 __attribute__((__always_inline__))
-static inline void
-ccmem_block_memset (ccmem_block_t B, uint8_t octet)
+static inline bool
+ccmem_block_is_empty (ccmem_block_t const S)
 {
-  memset(B.ptr, octet, B.len);
+  return ((0 == S.len) && (NULL != S.ptr))? true : false;
 }
 
 __attribute__((__always_inline__))
-static inline void
-ccmem_block_clean (ccmem_block_t B)
+static inline bool
+ccmem_block_is_null (ccmem_block_t const S)
 {
-  ccmem_block_memset(B, 0);
+  return ((0 == S.len) && (NULL == S.ptr))? true : false;
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
-static inline void
-ccmem_block_nullify (ccmem_block_t * B)
+/* ------------------------------------------------------------------ */
+/* comparison */
+
+__attribute__((__always_inline__))
+static inline bool
+ccmem_block_equal (ccmem_block_t const S1, ccmem_block_t const S2)
 {
-  B->ptr = NULL;
-  B->len = 0;
+  return ((S1.len == S2.len) && (0 == memcmp(S1.ptr, S2.ptr, S1.len)))? true : false;
+}
+
+/* ------------------------------------------------------------------ */
+/* operations */
+
+__attribute__((__always_inline__))
+static inline void
+ccmem_block_clean_memory (ccmem_block_t S)
+{
+  memset(S.ptr, '\0', S.len);
 }
 
 ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim)
@@ -499,6 +453,75 @@ ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, siz
 
 ccmem_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
   __attribute__((__const__));
+
+/* ------------------------------------------------------------ */
+/* memory allocation */
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_block_t
+ccmem_block_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
+{
+  return ccmem_new_block(ccmem_malloc(L, A, len), len);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2)))
+static inline ccmem_block_t
+ccmem_block_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
+{
+  return ccmem_new_block(ccmem_realloc(L, A, S.ptr, newlen), newlen);
+}
+
+__attribute__((__always_inline__,__nonnull__(1)))
+static inline void
+ccmem_block_free (ccmem_allocator_t const * const A, ccmem_block_t S)
+{
+  ccmem_free(A, S.ptr);
+}
+
+/* ------------------------------------------------------------ */
+/* guarded memory allocation */
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_block_t
+ccmem_block_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				  ccmem_allocator_t const * const A, size_t len)
+{
+  return ccmem_new_block(ccmem_malloc_guarded(L, S_H, A, len), len);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_block_t
+ccmem_block_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				  ccmem_allocator_t const * const A, size_t len)
+{
+  return ccmem_new_block(ccmem_malloc_guarded(L, S_H, A, len), len);
+}
+
+#define ccmem_block_malloc_guarded(L, S_H, A, len) \
+  _Generic((S_H), \
+	   ccmem_clean_handler_t *:	ccmem_block_malloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_block_malloc_guarded_error)(L, S_H, A, len)
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_block_t
+ccmem_block_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
+				   ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
+{
+  return ccmem_new_block(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
+}
+
+__attribute__((__always_inline__,__nonnull__(1,2,3)))
+static inline ccmem_block_t
+ccmem_block_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
+				   ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
+{
+  return ccmem_new_block(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
+}
+
+#define ccmem_block_realloc_guarded(L, S_H, A, S, newlen) \
+  _Generic((S_H), \
+	   ccmem_clean_handler_t *:	ccmem_block_realloc_guarded_clean, \
+	   ccmem_error_handler_t *:	ccmem_block_realloc_guarded_error)(L, S_H, A, S, newlen)
 
 
 /** ------------------------------------------------------------
