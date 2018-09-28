@@ -87,11 +87,9 @@ extern "C" {
  ** ----------------------------------------------------------------- */
 
 #include <ccexceptions.h>
-#include <stdlib.h>
-#include <stddef.h>
 #include <stdbool.h>
-#include <stdint.h>
-#include <unistd.h>
+#include <stdint.h> /* for "uint8_t" */
+#include <unistd.h> /* for "ssize_t" */
 #include <string.h>
 
 
