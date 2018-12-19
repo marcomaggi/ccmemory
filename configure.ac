@@ -85,7 +85,6 @@ AC_CACHE_SAVE
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile]
    [meta/scripts/ccmemory.pc]
-   [meta/slackstuff/config]
    [meta/slackware/slack-desc])
 MMUX_OUTPUT
 AC_OUTPUT
