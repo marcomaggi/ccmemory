@@ -6,7 +6,7 @@ EXTRA_DIST		= INSTALL			\
 			  meta/slackstuff/config.in	\
 			  meta/slackware/slack-desc.in
 dist_doc_DATA		= README COPYING
-AM_CFLAGS		= -I$(srcdir)/src $(AX_CFLAGS)
+AM_CFLAGS		= $(MMUX_CFLAGS) -I$(srcdir)/src
 
 ## --------------------------------------------------------------------
 
@@ -17,6 +17,8 @@ nodist_pkgconfig_DATA	= meta/scripts/ccmemory.pc
 ## --------------------------------------------------------------------
 
 AM_MAKEINFOFLAGS	= --no-split
+AM_MAKEINFOHTMLFLAGS	= --split=node -c WORDS_IN_PAGE=0 \
+	-c PRE_BODY_CLOSE="<p>This document describes version <tt>$(PACKAGE_VERSION)</tt> of <em>$(PACKAGE_NAME)</em>.</p>"
 
 info_TEXINFOS		= doc/ccmemory.texi
 doc_ccmemory_TEXINFOS	= \
@@ -100,59 +102,6 @@ $(builddir)/.gdbinit:
 #
 gdb-test: $(builddir)/.gdbinit
 	libtool --mode=execute gdb $$FILE
-
-
-#### Coverity support
-#
-# We can visit the project site at:
-#
-#    <https://scan.coverity.com/projects/marcomaggi-ccmemory>
-#
-# Remember to  put in  the PATH  the directory  in which  the Coverity
-# tools are installed; for example:
-#
-#    $ export PATH=/opt/coverity/8.7.0/cov-analysis-linux64-8.7.0/bin:$PATH
-#
-# The tool  will use  a temporary directory  "$(builddir)/cov-int"; we
-# must *not* change this pathname.
-#
-# To generate and submit a report we must do:
-#
-#    $ make clean
-#    $ make coverity-scan
-#    $ make coverity-archive
-#    $ make coverity-upload
-#
-# after "make  coverity-scan" we should  check that the last  lines of
-# the file "cov-int/build-log.txt" report a successful build:
-#
-#    $ tail cov-int/build-log.txt
-#
-# NOTE If  your Linux kernel  is at version 4.8  or above you  have to
-# first issue the command:
-#
-#    $ sudo /sbin/sysctl vsyscall=emulate
-#
-# to make the Coverity tools work.
-#
-
-CCMEMORY_COVERITY_TOKEN_FILE = /home/unsafe-users/marco-devel/.coverity-ccmemory-token
-
-.PHONY: coverity-scan coverity-archive coverity-upload
-
-coverity-scan:
-	cov-build --dir cov-int make -j 4
-
-coverity-archive:
-	tar caf ccmemory.xz cov-int
-
-coverity-upload:
-	curl --form token=$$(<$(CCMEMORY_COVERITY_TOKEN_FILE)) \
-	     --form email='marco.maggi-ipsu@poste.it' \
-	     --form file='@ccmemory.xz' \
-	     --form version="$(VERSION)" \
-	     --form description="A build description" \
-	     'https://scan.coverity.com/builds?project=marcomaggi%2Fccmemory'
 
 
 #### Static analysis with Clang's Static Analyzer
