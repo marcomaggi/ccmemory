@@ -40,15 +40,19 @@
  ** ----------------------------------------------------------------- */
 
 void
-test_1_1 (cce_destination_t L)
+test_1_1 (cce_destination_t upper_L)
 {
-  void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
+  cce_location_t	L[1];
 
-  fprintf(stderr, "%s: memset %p\n", __func__, P);
-  memset(P, 0, 4096);
-  fprintf(stderr, "%s: free %p\n", __func__, P);
-  ccmem_free(ccmem_standard_allocator, P);
-  fprintf(stderr, "%s: done %p\n", __func__, P);
+  if (cce_location(L)) {
+    cce_run_catch_handlers_raise(L, upper_L);
+  } else {
+    void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
+
+    memset(P, 0, 4096);
+    ccmem_free(ccmem_standard_allocator, P);
+    cce_run_body_handlers(L);
+  }
 }
 
 void
