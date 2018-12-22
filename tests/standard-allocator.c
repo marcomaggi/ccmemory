@@ -123,7 +123,7 @@ main (void)
   {
     cctests_begin_group("memory allocation and release, explicit allocator selection");
     {
-      cctests_run(test_1_1);
+      //cctests_run(test_1_1);
       cctests_run(test_1_2);
       cctests_run(test_1_3);
     }
