@@ -938,7 +938,7 @@ Adapter for @cfunc{ccmem_malloc_guarded_error} that builds and returns a new blo
 @end deftypefun
 
 
-@deftypefn ccmem_block_t ccmem_block_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+@deftypefn {Preprocessor Macro} ccmem_block_t ccmem_block_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 Preprocessor macro that builds and returns a new block.  If the argument @var{S_H} is a pointer to:
 
 @table @code
@@ -990,7 +990,7 @@ in a previous call to the allocation function.
 @end deftypefun
 
 
-@deftypefn ccmem_block_t ccmem_block_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
+@deftypefn {Preprocessor Macro} ccmem_block_t ccmem_block_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_block_t @var{S}, size_t @var{newlen})
 Preprocessor macro that builds and returns a new block string representing the reallocation of
 @var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
 allocation function.  If the argument @var{S_H} is a pointer to:
@@ -1182,7 +1182,7 @@ Adapter for @cfunc{ccmem_malloc_guarded_error} that builds and returns a new @as
 @end deftypefun
 
 
-@deftypefn ccmem_ascii_t ccmem_ascii_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+@deftypefn {Preprocessor Macro} ccmem_ascii_t ccmem_ascii_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 Preprocessor macro that builds and returns a new @ascii{} string.  If the argument @var{S_H} is a
 pointer to:
 
@@ -1235,7 +1235,7 @@ in a previous call to the allocation function.
 @end deftypefun
 
 
-@deftypefn ccmem_ascii_t ccmem_ascii_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_ascii_t @var{S}, size_t @var{newlen})
+@deftypefn {Preprocessor Macro} ccmem_ascii_t ccmem_ascii_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_ascii_t @var{S}, size_t @var{newlen})
 Preprocessor macro that builds and returns a new @ascii{} string representing the reallocation of
 @var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
 allocation function.  If the argument @var{S_H} is a pointer to:
@@ -1428,7 +1428,7 @@ Adapter for @cfunc{ccmem_malloc_guarded_error} that builds and returns a new @as
 @end deftypefun
 
 
-@deftypefn ccmem_asciiz_t ccmem_asciiz_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
+@deftypefn {Preprocessor Macro} ccmem_asciiz_t ccmem_asciiz_malloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, size_t @var{len})
 Preprocessor macro that builds and returns a new @ascii{} string.  If the argument @var{S_H} is a
 pointer to:
 
@@ -1481,7 +1481,7 @@ in a previous call to the allocation function.
 @end deftypefun
 
 
-@deftypefn ccmem_asciiz_t ccmem_asciiz_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
+@deftypefn {Preprocessor Macro} ccmem_asciiz_t ccmem_asciiz_realloc_guarded (cce_destination_t @var{L}, @var{S_H}, ccmem_allocator_t const * @var{A}, ccmem_asciiz_t @var{S}, size_t @var{newlen})
 Preprocessor macro that builds and returns a new @asciiz{} string representing the reallocation of
 @var{S}.  The given handler must be @strong{the same} handler used in a previous call to the
 allocation function.  If the argument @var{S_H} is a pointer to:
@@ -1572,11 +1572,6 @@ and as backup at:
 the package CCExceptions is available at:
 
 @center @url{https://github.com/marcomaggi/ccexceptions/}
-
-@noindent
-the package CCMemory is available at:
-
-@center @url{https://github.com/marcomaggi/ccmemory/}
 
 @noindent
 the package CCTests is available at:
