@@ -340,8 +340,6 @@ ccmem_std_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_
 	   ccmem_clean_handler_t	*: ccmem_std_realloc_guarded_clean, \
 	   ccmem_error_handler_t	*: ccmem_std_realloc_guarded_error)(L,P_H,P,newsize)
 
-
-
 
 /** --------------------------------------------------------------------
  ** Type definitions for memory blocks, ASCII strings, ASCIIZ strings.
