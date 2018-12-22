@@ -48,6 +48,7 @@ test_1_1 (cce_destination_t upper_L)
     cce_run_catch_handlers_raise(L, upper_L);
   } else {
     void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
+    fprintf(stderr, "%s: P=%p\n", __func__, P);
 
     memset(P, 0, 4096);
     ccmem_free(ccmem_standard_allocator, P);
