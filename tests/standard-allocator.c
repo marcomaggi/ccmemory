@@ -44,11 +44,11 @@ test_1_1 (cce_destination_t L)
 {
   void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
 
-  fprintf(stderr, "%s: memset\n", __func__);
+  fprintf(stderr, "%s: memset %p\n", __func__, P);
   memset(P, 0, 4096);
-  fprintf(stderr, "%s: free\n", __func__);
+  fprintf(stderr, "%s: free %p\n", __func__, P);
   ccmem_free(ccmem_standard_allocator, P);
-  fprintf(stderr, "%s: done\n", __func__);
+  fprintf(stderr, "%s: done %p\n", __func__, P);
 }
 
 void
