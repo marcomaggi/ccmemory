@@ -61,13 +61,13 @@ extern "C" {
 #    ifdef __GNUC__
 #      define ccmem_decl		__attribute__((__dllexport__)) extern
 #    else
-#      define ccmem_decl		__declspec(dllexport) extern
+#      define ccmem_decl		__declspec(__dllexport__) extern
 #    endif
 #  else
 #    ifdef __GNUC__
 #      define ccmem_decl		__attribute__((__dllimport__)) extern
 #    else
-#      define ccmem_decl		__declspec(dllimport) extern
+#      define ccmem_decl		__declspec(__dllimport__) extern
 #    endif
 #  endif
 #  define ccmem_private_decl	extern
