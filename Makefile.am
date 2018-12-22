@@ -115,16 +115,12 @@ gdb-test: $(builddir)/.gdbinit
 #    $ make clang-static-analysis
 #
 # The  program  "scan-build"  works  by  overriding  the  CC  and  CXX
-# environment variables.  Automake defines CXX as:
-#
-#    CXX = g++ -std=c++11
-#
-# so we override CXXFLAGS to include the language specification.
+# environment variables.
 #
 
 .PHONY: clang-static-analysis
 
 clang-static-analysis:
-	scan-build make CXXFLAGS='-std=c++11'
+	scan-build make
 
 ### end of file
