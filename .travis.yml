@@ -96,18 +96,17 @@ notifications:
 git:
   depth: 1
 
-branches:
-  only:
-    - master
-
-# NOTE There must be only *one* env.global key!!!  Otherwise the earlier
-# settings will be ineffective.
+# NOTE  There  must  be only  *one*  env.global  key!!!   Otherwise  the earlier  settings  will  be
+# ineffective.  Setting the variable  VERBOSE will cause "make check "  to print "test-suite.log" in
+# case some tests fail.
+#
 env:
   global:
     - MAKEFLAGS="-j 2"
     - PATH=$PATH:/tmp/mine/bin
     - LD_LIBRARY_PATH=/tmp/mine/lib:$LD_LIBRARY_PATH;
     - PKG_CONFIG_PATH=/tmp/mine/lib/pkgconfig:$PKG_CONFIG_PATH;
+    - VERBOSE=yes;
 
 #page
 #### dependencies management
