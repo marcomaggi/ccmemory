@@ -1,4 +1,4 @@
-# ccmemory
+# CCMemory
 
 [![Build Status](https://travis-ci.org/marcomaggi/ccmemory.svg?branch=master)](https://travis-ci.org/marcomaggi/ccmemory)
 [![codecov](https://codecov.io/gh/marcomaggi/ccmemory/branch/master/graph/badge.svg)](https://codecov.io/gh/marcomaggi/ccmemory)
