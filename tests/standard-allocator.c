@@ -40,20 +40,12 @@
  ** ----------------------------------------------------------------- */
 
 void
-test_1_1 (cce_destination_t upper_L)
+test_1_1 (cce_destination_t L)
 {
-  cce_location_t	L[1];
+  void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
 
-  if (cce_location(L)) {
-    cce_run_catch_handlers_raise(L, upper_L);
-  } else {
-    void *	P = ccmem_malloc(L, ccmem_standard_allocator, 4096);
-    fprintf(stderr, "%s: P=%p\n", __func__, P);
-
-    memset(P, 0, 4096);
-    ccmem_free(ccmem_standard_allocator, P);
-    cce_run_body_handlers(L);
-  }
+  memset(P, 0, 4096);
+  ccmem_free(ccmem_standard_allocator, P);
 }
 
 void
@@ -65,7 +57,7 @@ test_1_2 (cce_destination_t L)
   {
     void *	Q = ccmem_realloc(L, ccmem_standard_allocator, P, 2 * 4096);
 
-    memset(P, 0, 2 * 4096);
+    memset(Q, 0, 2 * 4096);
     ccmem_free(ccmem_standard_allocator, Q);
   }
 }
@@ -102,7 +94,7 @@ test_2_2 (cce_destination_t L)
   {
     void *	Q = ccmem_std_realloc(L, P, 2 * 4096);
 
-    memset(P, 0, 2 * 4096);
+    memset(Q, 0, 2 * 4096);
     ccmem_std_free(Q);
   }
 }
