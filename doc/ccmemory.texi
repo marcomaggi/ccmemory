@@ -33,7 +33,7 @@
 
 @c To be used as @value{COPYRIGHT_YEARS} whenever we need to include the
 @c list of copyright years.
-@set COPYRIGHT_YEARS            2016, 2018
+@set COPYRIGHT_YEARS            2016, 2018, 2019
 
 @c ------------------------------------------------------------
 
@@ -374,17 +374,17 @@ Pointer to the standard memory allocator instance.  This allocator uses the stan
 
 
 @deftypefun {void *} ccmem_std_malloc (cce_destination_t @var{L}, size_t @var{size})
-Allocate memory in a way similar to the standard @cfunc{malloc}, using the standard allocator
-@var{A}.  If an error occurs: an exception is raised by jumping to the location @var{L}.  This
-function never returns @cnull{}.
+Allocate memory in a way similar to the standard @cfunc{malloc}, using the standard allocator.  If
+an error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.
 @end deftypefun
 
 
 @deftypefun {void *} ccmem_std_realloc (cce_destination_t @var{L}, void * @var{ptr}, size_t @var{newsize})
-Reallocate memory in a way similar to the standard @cfunc{realloc}, using the allocator the standard
-allocator.  If an error occurs: an exception is raised by jumping to the location @var{L}.  This
-function never returns @cnull{}.  Only blocks of memory allocated using the standard allocator can
-be reallocated using this function.
+Reallocate memory in a way similar to the standard @cfunc{realloc}, using the standard allocator.
+If an error occurs: an exception is raised by jumping to the location @var{L}.  This function never
+returns @cnull{}.  Only blocks of memory allocated using the standard allocator can be reallocated
+using this function.
 @end deftypefun
 
 
