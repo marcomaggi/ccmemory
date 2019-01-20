@@ -13,7 +13,8 @@ EXTRA_DIST		+= meta/scripts/ccmemory.pc.in
 pkgconfigdir		= $(libdir)/pkgconfig
 nodist_pkgconfig_DATA	= meta/scripts/ccmemory.pc
 
-## --------------------------------------------------------------------
+
+#### documentation
 
 AM_MAKEINFOFLAGS	= --no-split
 AM_MAKEINFOHTMLFLAGS	= --split=node -c WORDS_IN_PAGE=0 \
@@ -88,63 +89,8 @@ installcheck-local: $(TESTS)
 	@for f in $(TESTS); do $(builddir)/$$f; done
 
 
-#### testing under GDB
+#### common rules
 
-$(builddir)/.gdbinit:
-	ln -sv "$(top_srcdir)/gdbinit" "$(builddir)/.gdbinit"
-
-# This rule is meant to be used as:
-#
-#   $ make all gdb-test FILE=tests/inspection CFLAGS='-g'
-#
-# after having created an appropriate file "$(top_srcdir)/.gdbinit".
-#
-gdb-test: $(builddir)/.gdbinit
-	libtool --mode=execute gdb $$FILE
-
-
-#### Valgrind analysis
-#
-# To use this rule on the file "tests/standard-allocator" we do:
-#
-#   make valgrind file=standard-allocator
-#
-
-VALGRIND_PROGRAM	= valgrind
-VALGRIND_FLAGS		= --leak-check=yes --track-origins=yes
-VALGRIND_FULL_FLAGS	= $(VALGRIND_FLAGS) --leak-check=full --show-leak-kinds=all
-
-.PHONY: valgrind valgrind-full
-
-valgrind:
-	for f in $(builddir)/tests/$(file) ; \
-	do $(LIBTOOL) --mode=execute $(VALGRIND_PROGRAM) $(VALGRIND_FLAGS) $$f ; \
-	done
-
-valgrind-full:
-	for f in $(builddir)/tests/$(file) ; \
-	do $(LIBTOOL) --mode=execute $(VALGRIND_PROGRAM) $(VALGRIND_FULL_FLAGS) $$f ; \
-	done
-
-
-#### Static analysis with Clang's Static Analyzer
-#
-# See the documentation for the command line tool at:
-#
-#    <http://clang-analyzer.llvm.org/scan-build.html>
-#
-# To run the tool we must do:
-#
-#    $ make clean
-#    $ make clang-static-analysis
-#
-# The  program  "scan-build"  works  by  overriding  the  CC  and  CXX
-# environment variables.
-#
-
-.PHONY: clang-static-analysis
-
-clang-static-analysis:
-	scan-build make
+include $(top_srcdir)/meta/automake/mmux-makefile-rules
 
 ### end of file
