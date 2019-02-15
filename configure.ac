@@ -18,7 +18,7 @@ your option) any later version.
 
 This program  is distributed  in the  hope that it  will be  useful, but
 WITHOUT   ANY   WARRANTY;  without   even   the   implied  warranty   of
-MERCHANTABILITY  or  FITNESS FOR  A  PARTICULAR  PURPOSE.  See  the  GNU
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
 General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
@@ -46,6 +46,7 @@ LT_INIT
 #### basic system inspection
 
 MMUX_CHECK_TARGET_OS
+AX_IS_RELEASE([git-directory])
 
 AC_LANG([C])
 MMUX_LANG_C11
