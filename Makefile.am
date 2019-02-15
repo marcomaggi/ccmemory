@@ -5,7 +5,8 @@ AUTOMAKE_OPTIONS	= foreign
 EXTRA_DIST		= INSTALL			\
 			  meta/slackware/slack-desc.in
 dist_doc_DATA		= README COPYING
-AM_CFLAGS		= $(MMUX_CFLAGS) -I$(srcdir)/src
+AM_CFLAGS		= $(MMUX_CFLAGS)
+AM_CPPFLAGS		= -I$(srcdir)/src
 
 ## --------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ ccmemory_AGE		= @ccmemory_VERSION_INTERFACE_AGE@
 include_HEADERS		= src/ccmemory.h
 
 lib_LTLIBRARIES		= libccmemory.la
-libccmemory_la_CPPFLAGS	= $(CCEXCEPTIONS_CFLAGS)
+libccmemory_la_CPPFLAGS	= $(AM_CPPFLAGS) $(CCEXCEPTIONS_CFLAGS)
 libccmemory_la_LDFLAGS	= -version-info $(ccmemory_CURRENT):$(ccmemory_REVISION):$(ccmemory_AGE) \
 			  $(CCEXCEPTIONS_LIBS)
 libccmemory_la_SOURCES	= \
@@ -62,25 +63,25 @@ if CCSEMVER_TESTING_ENABLED
 TESTS				= $(check_PROGRAMS)
 endif
 
-ccmemory_tests_cppflags		= -I$(srcdir)/src $(CCEXCEPTIONS_CFLAGS) $(CCTESTS_CFLAGS)
+ccmemory_tests_cflags		= $(AM_CFLAGS) $(CCEXCEPTIONS_CFLAGS) $(CCTESTS_CFLAGS)
 ccmemory_tests_ldadd		= libccmemory.la $(CCEXCEPTIONS_LIBS) $(CCTESTS_LIBS)
 
-tests_version_CPPFLAGS			= $(ccmemory_tests_cppflags)
+tests_version_CFLAGS			= $(ccmemory_tests_cflags)
 tests_version_LDADD			= $(ccmemory_tests_ldadd)
 
-tests_standard_allocator_CPPFLAGS	= $(ccmemory_tests_cppflags)
+tests_standard_allocator_CFLAGS		= $(ccmemory_tests_cflags)
 tests_standard_allocator_LDADD		= $(ccmemory_tests_ldadd)
 
-tests_exception_handlers_CPPFLAGS	= $(ccmemory_tests_cppflags)
+tests_exception_handlers_CFLAGS		= $(ccmemory_tests_cflags)
 tests_exception_handlers_LDADD		= $(ccmemory_tests_ldadd)
 
-tests_memory_blocks_CPPFLAGS		= $(ccmemory_tests_cppflags)
+tests_memory_blocks_CFLAGS		= $(ccmemory_tests_cflags)
 tests_memory_blocks_LDADD		= $(ccmemory_tests_ldadd)
 
-tests_ascii_strings_CPPFLAGS		= $(ccmemory_tests_cppflags)
+tests_ascii_strings_CFLAGS		= $(ccmemory_tests_cflags)
 tests_ascii_strings_LDADD		= $(ccmemory_tests_ldadd)
 
-tests_asciiz_strings_CPPFLAGS		= $(ccmemory_tests_cppflags)
+tests_asciiz_strings_CFLAGS		= $(ccmemory_tests_cflags)
 tests_asciiz_strings_LDADD		= $(ccmemory_tests_ldadd)
 
 ## --------------------------------------------------------------------
