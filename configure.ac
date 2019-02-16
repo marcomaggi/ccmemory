@@ -73,6 +73,7 @@ dnl AC_CACHE_SAVE
 #### external libraries
 
 MMUX_CHECK_PKG_CONFIG_MACROS
+PKG_INSTALLDIR
 PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.8.0])
 PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.3.0],,[AC_MSG_WARN([package CCTests not found])])
 

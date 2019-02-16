@@ -10,8 +10,6 @@ AM_CPPFLAGS		= -I$(srcdir)/src
 
 ## --------------------------------------------------------------------
 
-EXTRA_DIST		+= meta/scripts/ccmemory.pc.in
-pkgconfigdir		= $(libdir)/pkgconfig
 nodist_pkgconfig_DATA	= meta/scripts/ccmemory.pc
 
 
