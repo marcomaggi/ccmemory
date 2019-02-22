@@ -62,7 +62,9 @@ TESTS				= $(check_PROGRAMS)
 endif
 
 ccmemory_tests_cflags		= $(AM_CFLAGS) $(CCEXCEPTIONS_CFLAGS) $(CCTESTS_CFLAGS)
-ccmemory_tests_ldadd		= libccmemory.la $(CCEXCEPTIONS_LIBS) $(CCTESTS_LIBS)
+ccmemory_tests_ldadd		= libccmemory.la $(CCTESTS_LIBS)
+
+## --------------------------------------------------------------------
 
 tests_version_CFLAGS			= $(ccmemory_tests_cflags)
 tests_version_LDADD			= $(ccmemory_tests_ldadd)
