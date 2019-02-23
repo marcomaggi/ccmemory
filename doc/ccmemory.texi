@@ -42,17 +42,17 @@
 
 @c ------------------------------------------------------------------------
 
-@set PackageAutoconfPrefix            CCMEMORY
-@set PackagePkgconfigModule           ccmemory
-@set PackageLibsVar                   @env{CCMEMORY_LIBS}
-@set PackageCflagsVar                 @env{CCMEMORY_CFLAGS}
+@set PackageAutoconfPrefix              CCMEMORY
+@set PackagePkgconfigModule             ccmemory
+@set PackageLibsVar                     @env{CCMEMORY_LIBS}
+@set PackageCflagsVar                   @env{CCMEMORY_CFLAGS}
 @c This is the stem of the library in "libccmemory.so".
-@set PackageLibstem                    ccmemory
-@set PackageApiPrefixLower           ccmem_
-@set PackageApiPrefixUpper           CCMEM_
+@set PackageLibstem                     ccmemory
+@set PackageApiPrefixLower              ccmem_
+@set PackageApiPrefixUpper              CCMEM_
 
-@set PackageHeader                     ccmemory.h
-@set PackageHeader_FILE                @file{@value{PackageHeader}}
+@set PackageHeader                      ccmemory.h
+@set PackageHeaderFile                  @file{@value{PackageHeader}}
 
 @set GithubUrl                 @url{http://github.com/marcomaggi/@value{PACKAGE_NICKNAME}}
 @set BitbucketUrl              @url{https://bitbucket.org/marcomaggi/@value{PACKAGE_NICKNAME}}
@@ -176,12 +176,12 @@ This package supports @posix{} platforms.  This package depends on the package C
 least version @value{CCExceptionsVersion}.  To run the test suite: this package depends upon the
 package CCTests, at least version @value{CCTestsVersion}.
 
-@cindex @value{PackageHeader_FILE}, header file
-@cindex Header file @value{PackageHeader_FILE}
-@value{PACKAGE} installs the single header file @value{PackageHeader_FILE}.  All the function names
+@cindex @value{PackageHeaderFile}, header file
+@cindex Header file @value{PackageHeaderFile}
+@value{PACKAGE} installs the single header file @value{PackageHeaderFile}.  All the function names
 in the @api{} are prefixed with @code{@value{PackageApiPrefixLower}}; all the preprocessor symbol
-names are prefixed with @code{@value{PackageApiPrefixUpper}}; all the type names are prefixed
-with @code{@value{PackageApiPrefixLower}} and suffixed with @code{_t}.
+names are prefixed with @code{@value{PackageApiPrefixUpper}}; all the type names are prefixed with
+@code{@value{PackageApiPrefixLower}} and suffixed with @code{_t}.
 
 @menu
 * overview linking::            Linking code with the library.
