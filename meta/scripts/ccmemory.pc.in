@@ -21,7 +21,7 @@ sysconfdir=@sysconfdir@
 Name: @PACKAGE_NAME@
 Description: C11 library for custom memory allocators
 Version: @MMUX_PKG_CONFIG_VERSION@
-Requires: ccexceptions >= 0.8.0
+Requires: ccexceptions >= 0.9.0
 Libs: -L${libdir} -lccmemory
 Cflags: -I${includedir}
 

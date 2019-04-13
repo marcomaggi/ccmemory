@@ -8,7 +8,7 @@
 	This  public header  must  be included  in  all the  source  files using  the
 	features of the library CCMemory.
 
-  Copyright (C) 2016, 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2016, 2018-2019 Marco Maggi <marco.maggi-ipsu@poste.it>
 
   This program is free  software: you can redistribute it and/or  modify it under the
   terms of the  GNU Lesser General Public  License as published by  the Free Software
@@ -226,6 +226,10 @@ struct ccmem_error_handler_t {
   ccmem_allocator_t const *	allocator;
 };
 
+#define ccmem_handler_handler(H)		(&((H)->handler))
+#define ccmem_handler_resource_pointer(H)	cce_handler_resource_pointer((H)->handler)
+#define ccmem_handler_allocator(H)		((H)->allocator)
+
 /* ------------------------------------------------------------------ */
 
 ccmem_decl void * ccmem_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
@@ -236,9 +240,9 @@ ccmem_decl void * ccmem_malloc_guarded_error (cce_destination_t L, ccmem_error_h
 					      ccmem_allocator_t const * A, size_t size)
   __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
 
-#define ccmem_malloc_guarded(L,P_H,A,size) \
-  _Generic((P_H),	\
-	   ccmem_clean_handler_t	*: ccmem_malloc_guarded_clean, \
+#define ccmem_malloc_guarded(L,P_H,A,size)				\
+  _Generic((P_H),							\
+	   ccmem_clean_handler_t	*: ccmem_malloc_guarded_clean,	\
 	   ccmem_error_handler_t	*: ccmem_malloc_guarded_error)(L,P_H,A,size)
 
 /* ------------------------------------------------------------------ */
@@ -251,9 +255,9 @@ ccmem_decl void * ccmem_calloc_guarded_error (cce_destination_t L, ccmem_error_h
 					      ccmem_allocator_t const * A, size_t count, size_t eltsize)
   __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
 
-#define ccmem_calloc_guarded(L,P_H,A,count,eltsize) \
-  _Generic((P_H),	\
-	   ccmem_clean_handler_t	*: ccmem_calloc_guarded_clean, \
+#define ccmem_calloc_guarded(L,P_H,A,count,eltsize)			\
+  _Generic((P_H),							\
+	   ccmem_clean_handler_t	*: ccmem_calloc_guarded_clean,	\
 	   ccmem_error_handler_t	*: ccmem_calloc_guarded_error)(L,P_H,A,count,eltsize)
 
 /* ------------------------------------------------------------------ */
@@ -266,8 +270,8 @@ ccmem_decl void * ccmem_realloc_guarded_error (cce_destination_t L, ccmem_error_
 					       ccmem_allocator_t const * A, void * P, size_t newsize)
   __attribute__((__nonnull__(1,2,3,4),__returns_nonnull__));
 
-#define ccmem_realloc_guarded(L,P_H,A,P,newsize) \
-  _Generic((P_H),	\
+#define ccmem_realloc_guarded(L,P_H,A,P,newsize)			\
+  _Generic((P_H),							\
 	   ccmem_clean_handler_t	*: ccmem_realloc_guarded_clean, \
 	   ccmem_error_handler_t	*: ccmem_realloc_guarded_error)(L,P_H,A,P,newsize)
 
@@ -290,10 +294,10 @@ ccmem_std_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H
   return ccmem_malloc_guarded(L, P_H, ccmem_standard_allocator, size);
 }
 
-#define ccmem_std_malloc_guarded(L,P_H,size) \
-  _Generic((P_H),	\
-	   ccmem_clean_handler_t	*: ccmem_std_malloc_guarded_clean, \
-	   ccmem_error_handler_t	*: ccmem_std_malloc_guarded_error)(L,P_H,size)
+#define ccmem_std_malloc_guarded(L,P_H,size)				\
+  _Generic((P_H),							\
+	   ccmem_clean_handler_t *: ccmem_std_malloc_guarded_clean,	\
+	   ccmem_error_handler_t *: ccmem_std_malloc_guarded_error)(L,P_H,size)
 
 /* ------------------------------------------------------------------ */
 
@@ -311,10 +315,10 @@ ccmem_std_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H
   return ccmem_calloc_guarded(L, P_H, ccmem_standard_allocator, count, eltsize);
 }
 
-#define ccmem_std_calloc_guarded(L,P_H,count,eltsize) \
-  _Generic((P_H),	\
-	   ccmem_clean_handler_t	*: ccmem_std_calloc_guarded_clean, \
-	   ccmem_error_handler_t	*: ccmem_std_calloc_guarded_error)(L,P_H,count,eltsize)
+#define ccmem_std_calloc_guarded(L,P_H,count,eltsize)			\
+  _Generic((P_H),							\
+	   ccmem_clean_handler_t *: ccmem_std_calloc_guarded_clean,	\
+	   ccmem_error_handler_t *: ccmem_std_calloc_guarded_error)(L,P_H,count,eltsize)
 
 /* ------------------------------------------------------------------ */
 
@@ -332,10 +336,10 @@ ccmem_std_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_
   return ccmem_realloc_guarded(L, P_H, ccmem_standard_allocator, P, newsize);
 }
 
-#define ccmem_std_realloc_guarded(L,P_H,P,newsize) \
-  _Generic((P_H),	\
-	   ccmem_clean_handler_t	*: ccmem_std_realloc_guarded_clean, \
-	   ccmem_error_handler_t	*: ccmem_std_realloc_guarded_error)(L,P_H,P,newsize)
+#define ccmem_std_realloc_guarded(L,P_H,P,newsize)			\
+  _Generic((P_H),							\
+	   ccmem_clean_handler_t *: ccmem_std_realloc_guarded_clean,	\
+	   ccmem_error_handler_t *: ccmem_std_realloc_guarded_error)(L,P_H,P,newsize)
 
 
 /** --------------------------------------------------------------------
@@ -490,8 +494,8 @@ ccmem_block_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S
   return ccmem_new_block(ccmem_malloc_guarded(L, S_H, A, len), len);
 }
 
-#define ccmem_block_malloc_guarded(L, S_H, A, len) \
-  _Generic((S_H), \
+#define ccmem_block_malloc_guarded(L, S_H, A, len)			\
+  _Generic((S_H),							\
 	   ccmem_clean_handler_t *:	ccmem_block_malloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_block_malloc_guarded_error)(L, S_H, A, len)
 
@@ -511,8 +515,8 @@ ccmem_block_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
   return ccmem_new_block(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
 }
 
-#define ccmem_block_realloc_guarded(L, S_H, A, S, newlen) \
-  _Generic((S_H), \
+#define ccmem_block_realloc_guarded(L, S_H, A, S, newlen)		\
+  _Generic((S_H),							\
 	   ccmem_clean_handler_t *:	ccmem_block_realloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_block_realloc_guarded_error)(L, S_H, A, S, newlen)
 
@@ -657,8 +661,8 @@ ccmem_ascii_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S
   return ccmem_new_ascii(ccmem_malloc_guarded(L, S_H, A, len), len);
 }
 
-#define ccmem_ascii_malloc_guarded(L, S_H, A, len) \
-  _Generic((S_H), \
+#define ccmem_ascii_malloc_guarded(L, S_H, A, len)			\
+  _Generic((S_H),							\
 	   ccmem_clean_handler_t *:	ccmem_ascii_malloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_ascii_malloc_guarded_error)(L, S_H, A, len)
 
@@ -678,8 +682,8 @@ ccmem_ascii_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
   return ccmem_new_ascii(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
 }
 
-#define ccmem_ascii_realloc_guarded(L, S_H, A, S, newlen) \
-  _Generic((S_H), \
+#define ccmem_ascii_realloc_guarded(L, S_H, A, S, newlen)		\
+  _Generic((S_H),							\
 	   ccmem_clean_handler_t *:	ccmem_ascii_realloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_ascii_realloc_guarded_error)(L, S_H, A, S, newlen)
 

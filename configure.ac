@@ -2,12 +2,12 @@
 #
 
 AC_PREREQ([2.69])
-MMUX_PKG_VERSIONS([0],[2],[1],[devel.5])
+MMUX_PKG_VERSIONS([0],[2],[2],[devel.0])
 AC_INIT([CCMemory],[MMUX_PACKAGE_VERSION],
   [marco.maggi-ipsu@poste.it],
   [ccmemory],[https://github.com/marcomaggi/ccmemory])
 MMUX_INIT
-MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],2,0,0)
+MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],2,1,0)
 AC_REVISION([0.1])
 AC_COPYRIGHT([Copyright (c) 2016, 2018-2019 Marco Maggi <marco.maggi-ipsu@poste.it>
 
@@ -75,8 +75,8 @@ dnl AC_CACHE_SAVE
 PKG_PREREQ([0.29])
 PKG_INSTALLDIR
 MMUX_CHECK_PKG_CONFIG_MACROS
-PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.8.0])
-PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.3.0],,[AC_MSG_WARN([package CCTests not found])])
+PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.9.0])
+PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.4.1],,[AC_MSG_WARN([package CCTests not found])])
 
 AM_CONDITIONAL([CCSEMVER_TESTING_ENABLED],[test -n "$CCTESTS_LIBS"])
 
