@@ -3,6 +3,12 @@
 			News file for CCMemory
 			======================
 
+Revision 0.2.2-devel.1
+----------------------
+
+* Development of internal struct accessors.
+
+
 Revision 0.2.2-devel.0
 ----------------------
 

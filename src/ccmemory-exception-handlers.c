@@ -115,7 +115,7 @@ void *
 ccmem_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
 			     ccmem_allocator_t const * A, void * P, size_t newsize)
 {
-  void			* Q  = ccmem_realloc(L, A, P, newsize);
+  void			* Q = ccmem_realloc(L, A, P, newsize);
   cce_clean_handler_t	* H = ccmem_handler_handler(P_H);
 
   H->handler.resource_pointer	= Q;

@@ -226,9 +226,88 @@ struct ccmem_error_handler_t {
   ccmem_allocator_t const *	allocator;
 };
 
-#define ccmem_handler_handler(H)		(&((H)->handler))
-#define ccmem_handler_resource_pointer(H)	cce_handler_resource_pointer((H)->handler)
-#define ccmem_handler_allocator(H)		((H)->allocator)
+/* ------------------------------------------------------------------ */
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_clean_handler_t *
+ccmem_clean_handler_handler (ccmem_clean_handler_t * const H)
+{
+  return &(H->handler);
+}
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_error_handler_t *
+ccmem_error_handler_handler (ccmem_error_handler_t * const H)
+{
+  return &(H->handler);
+}
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_clean_handler_t const *
+ccmem_const_clean_handler_handler (ccmem_clean_handler_t const * const H)
+{
+  return &(H->handler);
+}
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_error_handler_t const *
+ccmem_const_error_handler_handler (ccmem_error_handler_t const * const H)
+{
+  return &(H->handler);
+}
+
+#define ccmem_handler_handler(H)					\
+  _Generic((H),								\
+	   ccmem_clean_handler_t *: ccmem_clean_handler_handler,	\
+	   ccmem_error_handler_t *: ccmem_error_handler_handler,	\
+	   ccmem_clean_handler_t const *: ccmem_const_clean_handler_handler, \
+	   ccmem_error_handler_t const *: ccmem_const_error_handler_handler)(H)
+
+/* ------------------------------------------------------------------ */
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_resource_data_t *
+ccmem_clean_handler_resource_pointer (ccmem_clean_handler_t * H)
+{
+  return cce_handler_resource_pointer(ccmem_handler_handler(H));
+}
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline cce_resource_data_t *
+ccmem_error_handler_resource_pointer (ccmem_error_handler_t * H)
+{
+  return cce_handler_resource_pointer(ccmem_handler_handler(H));
+}
+
+#define ccmem_handler_resource_pointer(H)				\
+  _Generic((H),								\
+	   ccmem_clean_handler_t *: ccmem_clean_handler_resource_pointer, \
+	   ccmem_error_handler_t *: ccmem_error_handler_resource_pointer, \
+	   ccmem_clean_handler_t const *: ccmem_clean_handler_resource_pointer, \
+	   ccmem_error_handler_t const *: ccmem_error_handler_resource_pointer)(H)
+
+/* ------------------------------------------------------------------ */
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline ccmem_allocator_t const *
+ccmem_clean_handler_allocator (ccmem_clean_handler_t const * const H)
+{
+  return H->allocator;
+}
+
+__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+static inline ccmem_allocator_t const *
+ccmem_error_handler_allocator (ccmem_error_handler_t const * const H)
+{
+  return H->allocator;
+}
+
+#define ccmem_handler_allocator(H)					\
+  _Generic((H),								\
+	   ccmem_clean_handler_t *: ccmem_clean_handler_allocator,	\
+	   ccmem_error_handler_t *: ccmem_error_handler_allocator,	\
+	   ccmem_clean_handler_t const *: ccmem_clean_handler_allocator, \
+	   ccmem_error_handler_t const *: ccmem_error_handler_allocator)(H)
 
 /* ------------------------------------------------------------------ */
 
