@@ -2,7 +2,7 @@
 #
 
 AC_PREREQ([2.69])
-MMUX_PKG_VERSIONS([0],[2],[2],[devel.1])
+MMUX_PKG_VERSIONS([0],[2],[2],[devel.2])
 AC_INIT([CCMemory],[MMUX_PACKAGE_VERSION],
   [marco.maggi-ipsu@poste.it],
   [ccmemory],[https://github.com/marcomaggi/ccmemory])
