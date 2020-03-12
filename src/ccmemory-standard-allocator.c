@@ -9,7 +9,7 @@
 	the standard  functions "malloc()", "realloc()",  "calloc()" and
 	"free()".
 
-  Copyright (C) 2018 Marco Maggi <marco.maggi-ipsu@poste.it>
+  Copyright (C) 2018 Marco Maggi <mrc.mgg@gmail.com>
 
   This is free software; you  can redistribute it and/or modify it under
   the terms of the GNU Lesser General Public License as published by the
