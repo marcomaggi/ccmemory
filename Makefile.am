@@ -16,11 +16,11 @@ nodist_pkgconfig_DATA	= meta/scripts/ccmemory.pc
 
 #### documentation
 
-EXTRA_DIST		+= doc/ccmemory.style.css
-CLEANFILES		+= doc/ccmemory.css
+EXTRA_DIST		+= doc/cclibraries.style.css
+CLEANFILES		+= doc/cclibraries.css
 
 AM_MAKEINFOFLAGS	= --no-split
-AM_MAKEINFOHTMLFLAGS	= --split=node -c WORDS_IN_PAGE=0 --css-ref=ccmemory.css \
+AM_MAKEINFOHTMLFLAGS	= --split=node -c WORDS_IN_PAGE=0 --css-ref=cclibraries.css \
 	-c PRE_BODY_CLOSE="<p>This document describes version <tt>$(PACKAGE_VERSION)</tt> of <em>$(PACKAGE_NAME)</em>.</p>"
 
 info_TEXINFOS		= doc/ccmemory.texi
@@ -37,16 +37,16 @@ doc/ccmemory.html/$(am__dirstamp): doc/$(am__dirstamp)
 	@$(MKDIR_P) doc/ccmemory.html/
 	@: > doc/ccmemory.html/$(am__dirstamp)
 
-doc/ccmemory.html/ccmemory.css: doc/ccmemory.style.css doc/ccmemory.html/$(am__dirstamp)
-	$(INSTALL) -m 0444 "$(top_srcdir)/doc/ccmemory.style.css" "$(builddir)/doc/ccmemory.html/ccmemory.css"
+doc/ccmemory.html/cclibraries.css: doc/cclibraries.style.css doc/ccmemory.html/$(am__dirstamp)
+	$(INSTALL) -m 0444 "$(top_srcdir)/doc/cclibraries.style.css" "$(builddir)/doc/ccmemory.html/cclibraries.css"
 
 ## --------------------------------------------------------------------
 
-html-local: doc/ccmemory.html/ccmemory.css
+html-local: doc/ccmemory.html/cclibraries.css
 
 install-html-local:
 	$(MKDIR_P) "$(DESTDIR)$(htmldir)/ccmemory.html/"
-	$(INSTALL) -m 0444 $(builddir)/doc/ccmemory.html/ccmemory.css "$(DESTDIR)$(htmldir)/ccmemory.html/"
+	$(INSTALL) -m 0444 $(builddir)/doc/ccmemory.html/cclibraries.css "$(DESTDIR)$(htmldir)/ccmemory.html/"
 
 
 #### libraries
