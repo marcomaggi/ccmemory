@@ -9,7 +9,7 @@ AC_INIT([CCMemory],[MMUX_PACKAGE_VERSION],
 MMUX_INIT
 MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],2,1,0)
 AC_REVISION([0.1])
-AC_COPYRIGHT([Copyright (c) 2016, 2018-2019 Marco Maggi <marco.maggi-ipsu@poste.it>
+AC_COPYRIGHT([Copyright (c) 2016, 2018-2020 Marco Maggi <marco.maggi-ipsu@poste.it>
 
 This program is free software: you  can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by
@@ -78,10 +78,10 @@ MMUX_CHECK_PKG_CONFIG_MACROS
 PKG_CHECK_MODULES([CCEXCEPTIONS],[ccexceptions >= 0.9.0])
 PKG_CHECK_MODULES([CCTESTS],[cctests >= 0.4.1],,[AC_MSG_WARN([package CCTests not found])])
 
-AM_CONDITIONAL([CCSEMVER_TESTING_ENABLED],[test -n "$CCTESTS_LIBS"])
+AM_CONDITIONAL([MMUX_TESTING_ENABLED],[test -n "$CCTESTS_LIBS"])
 
 MMUX_PKG_CONFIG_FIND_INCLUDE_FILE([ccexceptions],[ccexceptions.h])
-MMUX_PKG_CONFIG_FIND_INCLUDE_FILE([ccmemory],[ccmemory.h])
+MMUX_PKG_CONFIG_FIND_INCLUDE_FILE([cctests],[cctests.h])
 
 AC_CACHE_SAVE
 

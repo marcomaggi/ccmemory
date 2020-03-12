@@ -60,7 +60,7 @@ check_PROGRAMS	= \
 	tests/ascii-strings		\
 	tests/asciiz-strings
 
-if CCSEMVER_TESTING_ENABLED
+if MMUX_TESTING_ENABLED
 TESTS				= $(check_PROGRAMS)
 endif
 
