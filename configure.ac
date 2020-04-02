@@ -2,12 +2,12 @@
 #
 
 AC_PREREQ([2.69])
-MMUX_PKG_VERSIONS([0],[2],[2],[devel.3])
+MMUX_PKG_VERSIONS([0],[3],[0],[devel.0])
 AC_INIT([CCMemory],[MMUX_PACKAGE_VERSION],
   [mrc.mgg@gmail.com],
   [ccmemory],[https://github.com/marcomaggi/ccmemory])
 MMUX_INIT
-MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],2,1,0)
+MMUX_LIBTOOL_LIBRARY_VERSIONS([ccmemory],3,0,0)
 AC_REVISION([0.1])
 AC_COPYRIGHT([Copyright (c) 2016, 2018-2020 Marco Maggi <mrc.mgg@gmail.com>
 
