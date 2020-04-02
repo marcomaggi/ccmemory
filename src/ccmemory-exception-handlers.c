@@ -7,7 +7,7 @@
 
 
 
-  Copyright (C) 2018, 2019 Marco Maggi <mrc.mgg@gmail.com>
+  Copyright (C) 2018, 2019, 2020 Marco Maggi <mrc.mgg@gmail.com>
 
   This is free software; you can redistribute  it and/or modify it under the terms of
   the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -34,20 +34,20 @@
  ** Handlers.
  ** ----------------------------------------------------------------- */
 
-__attribute__((__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static void
-ccmem_clean_handler (cce_condition_t const * C CCMEM_UNUSED, cce_clean_handler_t const * const H)
+ccmem_clean_handler (cce_condition_t const * C CCLIB_UNUSED, cce_clean_handler_t const * const H)
 {
-  CCMEM_PC(ccmem_clean_handler_t const, P_H, H);
+  CCLIB_PC(ccmem_clean_handler_t const, P_H, H);
 
   ccmem_free(ccmem_handler_allocator(P_H), cce_handler_resource_pointer(H));
 }
 
-__attribute__((__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static void
-ccmem_error_handler (cce_condition_t const * C CCMEM_UNUSED, cce_error_handler_t const * const H)
+ccmem_error_handler (cce_condition_t const * C CCLIB_UNUSED, cce_error_handler_t const * const H)
 {
-  CCMEM_PC(ccmem_error_handler_t const, P_H, H);
+  CCLIB_PC(ccmem_error_handler_t const, P_H, H);
 
   ccmem_free(ccmem_handler_allocator(P_H), cce_handler_resource_pointer(H));
 }

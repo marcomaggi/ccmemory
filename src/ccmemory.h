@@ -8,7 +8,7 @@
 	This  public header  must  be included  in  all the  source  files using  the
 	features of the library CCMemory.
 
-  Copyright (C) 2016, 2018-2019 Marco Maggi <mrc.mgg@gmail.com>
+  Copyright (C) 2016, 2018-2020 Marco Maggi <mrc.mgg@gmail.com>
 
   This program is free  software: you can redistribute it and/or  modify it under the
   terms of the  GNU Lesser General Public  License as published by  the Free Software
@@ -25,57 +25,8 @@
 #ifndef CCMEMORY_H
 #define CCMEMORY_H 1
 
-
-/** --------------------------------------------------------------------
- ** Preliminary definitions.
- ** ----------------------------------------------------------------- */
-
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-/* The macro  CCMEM_UNUSED indicates that a  function, function argument
-   or variable may potentially be unused. Usage examples:
-
-   static int unused_function (char arg) CCMEM_UNUSED;
-   int foo (char unused_argument CCMEM_UNUSED);
-   int unused_variable CCMEM_UNUSED;
-*/
-#ifdef __GNUC__
-#  define CCMEM_UNUSED		__attribute__((__unused__))
-#else
-#  define CCMEM_UNUSED		/* empty */
-#endif
-
-#ifndef __GNUC__
-#  define __attribute__(...)	/* empty */
-#endif
-
-/* I found  the following chunk on  the Net.  (Marco Maggi;  Sun Feb 26,
-   2012) */
-#if defined _WIN32 || defined __CYGWIN__
-#  ifdef BUILDING_DLL
-#    ifdef __GNUC__
-#      define ccmem_decl		__attribute__((__dllexport__)) extern
-#    else
-#      define ccmem_decl		__declspec(__dllexport__) extern
-#    endif
-#  else
-#    ifdef __GNUC__
-#      define ccmem_decl		__attribute__((__dllimport__)) extern
-#    else
-#      define ccmem_decl		__declspec(__dllimport__) extern
-#    endif
-#  endif
-#  define ccmem_private_decl	extern
-#else
-#  if __GNUC__ >= 4
-#    define ccmem_decl		__attribute__((__visibility__("default"))) extern
-#    define ccmem_private_decl	__attribute__((__visibility__("hidden")))  extern
-#  else
-#    define ccmem_decl		extern
-#    define ccmem_private_decl	extern
-#  endif
 #endif
 
 
@@ -94,10 +45,10 @@ extern "C" {
  ** Version functions.
  ** ----------------------------------------------------------------- */
 
-ccmem_decl char const *	ccmem_version_string			(void);
-ccmem_decl int		ccmem_version_interface_current		(void);
-ccmem_decl int		ccmem_version_interface_revision	(void);
-ccmem_decl int		ccmem_version_interface_age		(void);
+cclib_decl char const *	ccmem_version_string			(void);
+cclib_decl int		ccmem_version_interface_current		(void);
+cclib_decl int		ccmem_version_interface_revision	(void);
+cclib_decl int		ccmem_version_interface_age		(void);
 
 
 /** --------------------------------------------------------------------
@@ -105,17 +56,9 @@ ccmem_decl int		ccmem_version_interface_age		(void);
  ** ----------------------------------------------------------------- */
 
 /*
-ccmem_decl void ccmem_library_init (void)
-  __attribute__((__constructor__));
+cclib_decl void ccmem_library_init (void)
+  CCLIB_FUNC_ATTRIBUTE_CONSTRUCTOR
 */
-
-
-/** --------------------------------------------------------------------
- ** Constants and preprocessor macros.
- ** ----------------------------------------------------------------- */
-
-#define CCMEM_PC(POINTER_TYPE, POINTER_NAME, EXPRESSION)	\
-  POINTER_TYPE * POINTER_NAME = (POINTER_TYPE *) (EXPRESSION)
 
 
 /** --------------------------------------------------------------------
@@ -143,28 +86,35 @@ struct ccmem_allocator_t {
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_malloc (cce_destination_t L, ccmem_allocator_t const * A, size_t size)
 {
   return A->methods->malloc(L, A, size);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_realloc (cce_destination_t L, ccmem_allocator_t const * A, void * ptr, size_t newsize)
 {
   return A->methods->realloc(L, A, ptr, newsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_calloc (cce_destination_t L, ccmem_allocator_t const * A, size_t count, size_t eltsize)
 {
   return A->methods->calloc(L, A, count, eltsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static inline void
 ccmem_free (ccmem_allocator_t const * A, void * ptr)
 {
@@ -176,32 +126,39 @@ ccmem_free (ccmem_allocator_t const * A, void * ptr)
  ** Standard memory allocator definition.
  ** ----------------------------------------------------------------- */
 
-ccmem_decl ccmem_allocator_t const * const ccmem_standard_allocator;
+cclib_decl ccmem_allocator_t const * const ccmem_standard_allocator;
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_std_malloc (cce_destination_t L, size_t size)
 {
   return ccmem_standard_allocator->methods->malloc(L, ccmem_standard_allocator, size);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_std_realloc (cce_destination_t L, void * ptr, size_t newsize)
 {
   return ccmem_standard_allocator->methods->realloc(L, ccmem_standard_allocator, ptr, newsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline void *
 ccmem_std_calloc (cce_destination_t L, size_t count, size_t eltsize)
 {
   return ccmem_standard_allocator->methods->calloc(L, ccmem_standard_allocator, count, eltsize);
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline void
 ccmem_std_free (void * ptr)
 {
@@ -228,28 +185,36 @@ struct ccmem_error_handler_t {
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_clean_handler_t *
 ccmem_clean_handler_handler (ccmem_clean_handler_t * const H)
 {
   return &(H->handler);
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_error_handler_t *
 ccmem_error_handler_handler (ccmem_error_handler_t * const H)
 {
   return &(H->handler);
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_clean_handler_t const *
 ccmem_const_clean_handler_handler (ccmem_clean_handler_t const * const H)
 {
   return &(H->handler);
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_error_handler_t const *
 ccmem_const_error_handler_handler (ccmem_error_handler_t const * const H)
 {
@@ -265,14 +230,18 @@ ccmem_const_error_handler_handler (ccmem_error_handler_t const * const H)
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_resource_data_t *
 ccmem_clean_handler_resource_pointer (ccmem_clean_handler_t * H)
 {
   return cce_handler_resource_pointer(ccmem_handler_handler(H));
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline cce_resource_data_t *
 ccmem_error_handler_resource_pointer (ccmem_error_handler_t * H)
 {
@@ -288,14 +257,18 @@ ccmem_error_handler_resource_pointer (ccmem_error_handler_t * H)
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline ccmem_allocator_t const *
 ccmem_clean_handler_allocator (ccmem_clean_handler_t const * const H)
 {
   return H->allocator;
 }
 
-__attribute__((__always_inline__,__nonnull__(1),__returns_nonnull__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
 static inline ccmem_allocator_t const *
 ccmem_error_handler_allocator (ccmem_error_handler_t const * const H)
 {
@@ -311,13 +284,15 @@ ccmem_error_handler_allocator (ccmem_error_handler_t const * const H)
 
 /* ------------------------------------------------------------------ */
 
-ccmem_decl void * ccmem_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+cclib_decl void * ccmem_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
 					      ccmem_allocator_t const * A, size_t size)
-  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
-ccmem_decl void * ccmem_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+cclib_decl void * ccmem_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
 					      ccmem_allocator_t const * A, size_t size)
-  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
 #define ccmem_malloc_guarded(L,P_H,A,size)				\
   _Generic((P_H),							\
@@ -326,13 +301,15 @@ ccmem_decl void * ccmem_malloc_guarded_error (cce_destination_t L, ccmem_error_h
 
 /* ------------------------------------------------------------------ */
 
-ccmem_decl void * ccmem_calloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+cclib_decl void * ccmem_calloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
 					      ccmem_allocator_t const * A, size_t count, size_t eltsize)
-  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
-ccmem_decl void * ccmem_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+cclib_decl void * ccmem_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
 					      ccmem_allocator_t const * A, size_t count, size_t eltsize)
-  __attribute__((__nonnull__(1,2,3),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
 #define ccmem_calloc_guarded(L,P_H,A,count,eltsize)			\
   _Generic((P_H),							\
@@ -341,13 +318,15 @@ ccmem_decl void * ccmem_calloc_guarded_error (cce_destination_t L, ccmem_error_h
 
 /* ------------------------------------------------------------------ */
 
-ccmem_decl void * ccmem_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
+cclib_decl void * ccmem_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H,
 					       ccmem_allocator_t const * A, void * P, size_t newsize)
-  __attribute__((__nonnull__(1,2,3,4),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3,4)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
-ccmem_decl void * ccmem_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
+cclib_decl void * ccmem_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H,
 					       ccmem_allocator_t const * A, void * P, size_t newsize)
-  __attribute__((__nonnull__(1,2,3,4),__returns_nonnull__));
+  CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3,4)
+  CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL;
 
 #define ccmem_realloc_guarded(L,P_H,A,P,newsize)			\
   _Generic((P_H),							\
@@ -359,14 +338,18 @@ ccmem_decl void * ccmem_realloc_guarded_error (cce_destination_t L, ccmem_error_
  ** Standard memory allocator: exception handlers.
  ** ----------------------------------------------------------------- */
 
-__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, size_t size)
 {
   return ccmem_malloc_guarded(L, P_H, ccmem_standard_allocator, size);
 }
 
-__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, size_t size)
 {
@@ -380,14 +363,18 @@ ccmem_std_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_calloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, size_t count, size_t eltsize)
 {
   return ccmem_calloc_guarded(L, P_H, ccmem_standard_allocator, count, eltsize);
 }
 
-__attribute__((__nonnull__(1,2),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, size_t count, size_t eltsize)
 {
@@ -401,14 +388,18 @@ ccmem_std_calloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H
 
 /* ------------------------------------------------------------------ */
 
-__attribute__((__nonnull__(1,2,3),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * P_H, void * P, size_t newsize)
 {
   return ccmem_realloc_guarded(L, P_H, ccmem_standard_allocator, P, newsize);
 }
 
-__attribute__((__nonnull__(1,2,3),__returns_nonnull__,__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
+CCLIB_FUNC_ATTRIBUTE_RETURNS_NONNULL
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void *
 ccmem_std_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * P_H, void * P, size_t newsize)
 {
@@ -451,7 +442,8 @@ struct ccmem_asciiz_t {
 
 /* constructors */
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_block_t
 ccmem_new_block (uint8_t * ptr, size_t len)
 {
@@ -462,7 +454,7 @@ ccmem_new_block (uint8_t * ptr, size_t len)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_block_t
 ccmem_new_block_null (void)
 {
@@ -473,14 +465,14 @@ ccmem_new_block_null (void)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_block_t
 ccmem_new_block_from_ascii (ccmem_ascii_t S)
 {
   return ccmem_new_block((uint8_t *)S.ptr, S.len);
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_block_t
 ccmem_new_block_from_asciiz (ccmem_asciiz_t S)
 {
@@ -490,14 +482,14 @@ ccmem_new_block_from_asciiz (ccmem_asciiz_t S)
 /* ------------------------------------------------------------------ */
 /* predicates */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_block_is_empty (ccmem_block_t const S)
 {
   return ((0 == S.len) && (NULL != S.ptr))? true : false;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_block_is_null (ccmem_block_t const S)
 {
@@ -507,7 +499,7 @@ ccmem_block_is_null (ccmem_block_t const S)
 /* ------------------------------------------------------------------ */
 /* comparison */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_block_equal (ccmem_block_t const S1, ccmem_block_t const S2)
 {
@@ -517,37 +509,40 @@ ccmem_block_equal (ccmem_block_t const S1, ccmem_block_t const S2)
 /* ------------------------------------------------------------------ */
 /* operations */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void
 ccmem_block_clean_memory (ccmem_block_t S)
 {
   memset(S.ptr, '\0', S.len);
 }
 
-ccmem_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim)
-  __attribute__((__const__));
+cclib_decl ccmem_block_t ccmem_block_shift (ccmem_block_t B, ssize_t offset, size_t dim)
+  CCLIB_FUNC_ATTRIBUTE_CONST;
 
-ccmem_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
-  __attribute__((__const__));
+cclib_decl ccmem_block_t ccmem_block_difference (ccmem_block_t A, ccmem_block_t B)
+  CCLIB_FUNC_ATTRIBUTE_CONST;
 
 /* ------------------------------------------------------------ */
 /* memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static inline ccmem_block_t
 ccmem_block_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
 {
   return ccmem_new_block(ccmem_malloc(L, A, len), len);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static inline ccmem_block_t
 ccmem_block_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
 {
   return ccmem_new_block(ccmem_realloc(L, A, S.ptr, newlen), newlen);
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline void
 ccmem_block_free (ccmem_allocator_t const * const A, ccmem_block_t S)
 {
@@ -557,7 +552,8 @@ ccmem_block_free (ccmem_allocator_t const * const A, ccmem_block_t S)
 /* ------------------------------------------------------------ */
 /* guarded memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_block_t
 ccmem_block_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				  ccmem_allocator_t const * const A, size_t len)
@@ -565,7 +561,8 @@ ccmem_block_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S
   return ccmem_new_block(ccmem_malloc_guarded(L, S_H, A, len), len);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_block_t
 ccmem_block_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				  ccmem_allocator_t const * const A, size_t len)
@@ -578,7 +575,8 @@ ccmem_block_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S
 	   ccmem_clean_handler_t *:	ccmem_block_malloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_block_malloc_guarded_error)(L, S_H, A, len)
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_block_t
 ccmem_block_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				   ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
@@ -586,7 +584,8 @@ ccmem_block_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * 
   return ccmem_new_block(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_block_t
 ccmem_block_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				   ccmem_allocator_t const * const A, ccmem_block_t S, size_t newlen)
@@ -606,7 +605,8 @@ ccmem_block_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
 
 /* constructors */
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline ccmem_ascii_t
 ccmem_new_ascii (char * ptr, size_t len)
 {
@@ -617,7 +617,7 @@ ccmem_new_ascii (char * ptr, size_t len)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_ascii_t
 ccmem_new_ascii_empty (void)
 {
@@ -628,7 +628,7 @@ ccmem_new_ascii_empty (void)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_ascii_t
 ccmem_new_ascii_null (void)
 {
@@ -639,21 +639,22 @@ ccmem_new_ascii_null (void)
   return S;
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline ccmem_ascii_t
 ccmem_new_ascii_from_str (char * str)
 {
   return ccmem_new_ascii(str, strlen(str));
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_ascii_t
 ccmem_new_ascii_from_block (ccmem_block_t B)
 {
   return ccmem_new_ascii((char *)B.ptr, B.len);
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_ascii_t
 ccmem_new_ascii_from_asciiz (ccmem_asciiz_t S)
 {
@@ -663,14 +664,14 @@ ccmem_new_ascii_from_asciiz (ccmem_asciiz_t S)
 /* ------------------------------------------------------------------ */
 /* predicates */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_ascii_is_empty (ccmem_ascii_t const S)
 {
   return ((0 == S.len) && (NULL != S.ptr));
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_ascii_is_null (ccmem_ascii_t const S)
 {
@@ -680,7 +681,7 @@ ccmem_ascii_is_null (ccmem_ascii_t const S)
 /* ------------------------------------------------------------------ */
 /* comparison */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_ascii_equal (ccmem_ascii_t const S1, ccmem_ascii_t const S2)
 {
@@ -690,7 +691,7 @@ ccmem_ascii_equal (ccmem_ascii_t const S1, ccmem_ascii_t const S2)
 /* ------------------------------------------------------------------ */
 /* operations */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void
 ccmem_ascii_clean_memory (ccmem_ascii_t S)
 {
@@ -700,21 +701,24 @@ ccmem_ascii_clean_memory (ccmem_ascii_t S)
 /* ------------------------------------------------------------ */
 /* memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static inline ccmem_ascii_t
 ccmem_ascii_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
 {
   return ccmem_new_ascii(ccmem_malloc(L, A, len), len);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2)
 static inline ccmem_ascii_t
 ccmem_ascii_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
 {
   return ccmem_new_ascii(ccmem_realloc(L, A, S.ptr, newlen), newlen);
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline void
 ccmem_ascii_free (ccmem_allocator_t const * const A, ccmem_ascii_t S)
 {
@@ -724,7 +728,8 @@ ccmem_ascii_free (ccmem_allocator_t const * const A, ccmem_ascii_t S)
 /* ------------------------------------------------------------ */
 /* guarded memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_ascii_t
 ccmem_ascii_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				  ccmem_allocator_t const * const A, size_t len)
@@ -732,7 +737,8 @@ ccmem_ascii_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S
   return ccmem_new_ascii(ccmem_malloc_guarded(L, S_H, A, len), len);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_ascii_t
 ccmem_ascii_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				  ccmem_allocator_t const * const A, size_t len)
@@ -745,7 +751,8 @@ ccmem_ascii_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S
 	   ccmem_clean_handler_t *:	ccmem_ascii_malloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_ascii_malloc_guarded_error)(L, S_H, A, len)
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_ascii_t
 ccmem_ascii_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				   ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
@@ -753,7 +760,8 @@ ccmem_ascii_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * 
   return ccmem_new_ascii(ccmem_realloc_guarded(L, S_H, A, S.ptr, newlen), newlen);
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_ascii_t
 ccmem_ascii_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				   ccmem_allocator_t const * const A, ccmem_ascii_t S, size_t newlen)
@@ -773,7 +781,8 @@ ccmem_ascii_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
 
 /* constructors */
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline ccmem_asciiz_t
 ccmem_new_asciiz (char * ptr, size_t len)
 {
@@ -784,7 +793,7 @@ ccmem_new_asciiz (char * ptr, size_t len)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_asciiz_t
 ccmem_new_asciiz_empty (void)
 {
@@ -795,7 +804,7 @@ ccmem_new_asciiz_empty (void)
   return S;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_asciiz_t
 ccmem_new_asciiz_null (void)
 {
@@ -806,14 +815,15 @@ ccmem_new_asciiz_null (void)
   return S;
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1)
 static inline ccmem_asciiz_t
 ccmem_new_asciiz_from_str (char * str)
 {
   return ccmem_new_asciiz(str, strlen(str));
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_asciiz_t
 ccmem_new_asciiz_from_block (ccmem_block_t B)
 /* We assume  that the string  in the  block is zero-terminated  and the
@@ -825,21 +835,21 @@ ccmem_new_asciiz_from_block (ccmem_block_t B)
 /* ------------------------------------------------------------------ */
 /* predicates */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_asciiz_is_empty (ccmem_asciiz_t const S)
 {
   return ((0 == S.len) && (NULL != S.ptr) && ('\0' == S.ptr[S.len]));
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_asciiz_is_null (ccmem_asciiz_t const S)
 {
   return ((0 == S.len) && (NULL == S.ptr))? true : false;
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_asciiz_is_terminated (ccmem_asciiz_t S)
 {
@@ -849,7 +859,7 @@ ccmem_asciiz_is_terminated (ccmem_asciiz_t S)
 /* ------------------------------------------------------------------ */
 /* comparison */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline bool
 ccmem_asciiz_equal (ccmem_asciiz_t const S1, ccmem_asciiz_t const S2)
 {
@@ -859,14 +869,14 @@ ccmem_asciiz_equal (ccmem_asciiz_t const S1, ccmem_asciiz_t const S2)
 /* ------------------------------------------------------------------ */
 /* operations */
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void
 ccmem_asciiz_clean_memory (ccmem_asciiz_t S)
 {
   memset(S.ptr, '\0', 1+S.len);
 }
 
-__attribute__((__always_inline__))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void
 ccmem_asciiz_terminate (ccmem_asciiz_t S)
 {
@@ -876,7 +886,7 @@ ccmem_asciiz_terminate (ccmem_asciiz_t S)
 /* ------------------------------------------------------------------ */
 /* dynamic memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_asciiz_t
 ccmem_asciiz_malloc (cce_destination_t L, ccmem_allocator_t const * const A, size_t const len)
 {
@@ -885,7 +895,7 @@ ccmem_asciiz_malloc (cce_destination_t L, ccmem_allocator_t const * const A, siz
   return S;
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline ccmem_asciiz_t
 ccmem_asciiz_realloc (cce_destination_t L, ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)
 {
@@ -894,7 +904,7 @@ ccmem_asciiz_realloc (cce_destination_t L, ccmem_allocator_t const * const A, cc
   return R;
 }
 
-__attribute__((__always_inline__,__nonnull__(1)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
 static inline void
 ccmem_asciiz_free (ccmem_allocator_t const * const A, ccmem_asciiz_t S)
 {
@@ -904,7 +914,8 @@ ccmem_asciiz_free (ccmem_allocator_t const * const A, ccmem_asciiz_t S)
 /* ------------------------------------------------------------ */
 /* guarded memory allocation */
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_asciiz_t
 ccmem_asciiz_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				   ccmem_allocator_t const * const A, size_t len)
@@ -914,7 +925,8 @@ ccmem_asciiz_malloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * 
   return S;
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_asciiz_t
 ccmem_asciiz_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				   ccmem_allocator_t const * const A, size_t len)
@@ -929,7 +941,8 @@ ccmem_asciiz_malloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * 
 	   ccmem_clean_handler_t *:	ccmem_asciiz_malloc_guarded_clean, \
 	   ccmem_error_handler_t *:	ccmem_asciiz_malloc_guarded_error)(L, S_H, A, len)
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_asciiz_t
 ccmem_asciiz_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t * S_H,
 				    ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)
@@ -939,7 +952,8 @@ ccmem_asciiz_realloc_guarded_clean (cce_destination_t L, ccmem_clean_handler_t *
   return R;
 }
 
-__attribute__((__always_inline__,__nonnull__(1,2,3)))
+CCLIB_FUNC_ATTRIBUTE_ALWAYS_INLINE
+CCLIB_FUNC_ATTRIBUTE_NONNULL(1,2,3)
 static inline ccmem_asciiz_t
 ccmem_asciiz_realloc_guarded_error (cce_destination_t L, ccmem_error_handler_t * S_H,
 				    ccmem_allocator_t const * const A, ccmem_asciiz_t S, size_t newlen)

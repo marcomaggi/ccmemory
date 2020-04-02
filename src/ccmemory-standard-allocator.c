@@ -9,7 +9,7 @@
 	the standard  functions "malloc()", "realloc()",  "calloc()" and
 	"free()".
 
-  Copyright (C) 2018 Marco Maggi <mrc.mgg@gmail.com>
+  Copyright (C) 2018, 2020 Marco Maggi <mrc.mgg@gmail.com>
 
   This is free software; you  can redistribute it and/or modify it under
   the terms of the GNU Lesser General Public License as published by the
@@ -40,25 +40,25 @@
  ** ----------------------------------------------------------------- */
 
 static void *
-ccmem_standard_allocator_malloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, size_t size)
+ccmem_standard_allocator_malloc (cce_destination_t L, ccmem_allocator_t const * const A CCLIB_UNUSED, size_t size)
 {
   return cce_sys_malloc(L, size);
 }
 
 void *
-ccmem_standard_allocator_realloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr, size_t newsize)
+ccmem_standard_allocator_realloc (cce_destination_t L, ccmem_allocator_t const * const A CCLIB_UNUSED, void * ptr, size_t newsize)
 {
   return cce_sys_realloc(L, ptr, newsize);
 }
 
 void *
-ccmem_standard_allocator_calloc (cce_destination_t L, ccmem_allocator_t const * const A CCMEM_UNUSED, size_t count, size_t eltsize)
+ccmem_standard_allocator_calloc (cce_destination_t L, ccmem_allocator_t const * const A CCLIB_UNUSED, size_t count, size_t eltsize)
 {
   return cce_sys_calloc(L, count, eltsize);
 }
 
 void
-ccmem_standard_allocator_free (ccmem_allocator_t const * const A CCMEM_UNUSED, void * ptr)
+ccmem_standard_allocator_free (ccmem_allocator_t const * const A CCLIB_UNUSED, void * ptr)
 {
   free(ptr);
 }
