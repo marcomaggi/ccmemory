@@ -37,8 +37,8 @@
 
 @c ------------------------------------------------------------
 
-@set CCExceptionsVersion       0.9.0
-@set CCTestsVersion            0.4.1
+@set CCExceptionsVersion       0.10.0
+@set CCTestsVersion            0.5.0
 
 @c ------------------------------------------------------------------------
 

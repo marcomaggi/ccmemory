@@ -24,8 +24,8 @@ This package installs  a C11 language library  implementing an interface
 for custom memory allocators.
 
   This package  supports POSIX platforms.   This package depends  on the
-package CCExceptions,  at least version  0.9.0.  To run the  test suite:
-this package depends upon the package CCTests, at least version 0.4.1.
+package CCExceptions, at  least version 0.10.0.  To run  the test suite:
+this package depends upon the package CCTests, at least version 0.5.0.
 
   The package uses the GNU Autotools  and it is tested, using Travis CI,
 on both Ubuntu GNU+Linux systems and OS X systems.
